@@ -10,10 +10,7 @@ import {
 import { formatLocal, getCurrentSeason, getDayOfWeek } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { CountryTags } from "@/components/country-tags";
-import { LocaleSwitcher } from "@/components/locale-switcher";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { getTranslations, getLocale } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -171,13 +168,6 @@ export default async function Home({
   const generalMedia = filteredItems.filter((m) => !m.isAdult);
   const adultMedia = filteredItems.filter((m) => m.isAdult);
 
-  const seasonNames: Record<"WINTER" | "SPRING" | "SUMMER" | "FALL", string> = {
-    WINTER: t("season.winter"),
-    SPRING: t("season.spring"),
-    SUMMER: t("season.summer"),
-    FALL: t("season.fall"),
-  };
-
   // 生成國家選單選項（只顯示有作品的國家）
   const countrySelectOptions: Array<{
     group: string;
@@ -206,43 +196,7 @@ export default async function Home({
   });
 
   return (
-    <main className="mx-auto max-w-4xl p-6">
-      <header className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">
-          {t("app.title", { year, season: seasonNames[season] })}
-        </h1>
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <LocaleSwitcher />
-        </div>
-      </header>
-
-      <p className="mt-2 text-sm text-gray-600">
-        {selectedCountry && selectedCountry !== "" ? (
-          <>
-            {t("stats.totalWithCountry", {
-              count: filteredItems.length,
-              currentSeason: filteredItems.filter((m) => m.isCurrentSeason)
-                .length,
-              ongoing: filteredItems.filter((m) => !m.isCurrentSeason).length,
-              country: (t(
-                `country.names.${selectedCountry}` as "country.names.JP"
-              ) || selectedCountry) as string,
-            })}
-          </>
-        ) : (
-          <>
-            {t("stats.total", {
-              count: itemsWithTitles.length,
-              currentSeason: itemsWithTitles.filter((m) => m.isCurrentSeason)
-                .length,
-              ongoing: itemsWithTitles.filter((m) => !m.isCurrentSeason).length,
-            })}
-          </>
-        )}
-      </p>
-      <Separator className="my-4" />
-
+    <main>
       <Tabs defaultValue="general" className="mt-6">
         <div className="flex items-center justify-between">
           <TabsList>
