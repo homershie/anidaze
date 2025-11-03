@@ -155,10 +155,8 @@ export default async function Home({
       const isCurrentSeason =
         media.season === season && media.seasonYear === year;
 
-      // 判斷是否為成人內容（優先檢查 Media 層級的 isAdult，否則檢查 tags）
-      const isAdult =
-        media.isAdult === true ||
-        media.tags?.some((tag) => tag?.isAdult === true) === true;
+      // 判斷是否為成人內容（僅依據 Media 層級的 isAdult，忽略 tags）
+      const isAdult = media.isAdult === true;
 
       return {
         ...media,
