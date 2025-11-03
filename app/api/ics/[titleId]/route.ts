@@ -9,6 +9,12 @@ import { getBestTitle } from "@/lib/title";
 import { cookies } from "next/headers";
 import { routing } from "@/i18n/routing";
 import type { AppLocale } from "@/i18n/routing";
+import {
+  getTimezoneFromRequest,
+  getDayOfWeekRRULE,
+  getTimezoneDisplayName,
+} from "@/lib/time";
+import { getTranslations } from "next-intl/server";
 
 export async function GET(
   req: Request,
@@ -49,6 +55,13 @@ export async function GET(
       ? (localeCookie as AppLocale)
       : routing.defaultLocale;
 
+  // Get timezone from request (query parameter, cookie, or default)
+  const timezoneCookie = cookieStore.get("TIMEZONE")?.value;
+  const timezone = getTimezoneFromRequest(url, timezoneCookie);
+
+  // Get translations for i18n
+  const t = await getTranslations({ locale });
+
   const title = await getBestTitle(
     {
       romaji: media.title.romaji,
@@ -83,24 +96,8 @@ export async function GET(
 
     // 如果間隔接近 7 天（允許 ±1 天的誤差），使用每週重複
     if (intervalDays >= 6 && intervalDays <= 8) {
-      // 計算台北時區的星期幾（因為動畫通常按台北時間播出）
-      // airingAt 是 Unix timestamp，需要轉換為台北時間
-      const firstDate = new Date(firstTime * 1000);
-      // 使用台北時區格式化日期來取得正確的星期幾
-      const taipeiDate = new Intl.DateTimeFormat("en-US", {
-        timeZone: "Asia/Taipei",
-        weekday: "short",
-      }).format(firstDate);
-      const dayMap: Record<string, string> = {
-        Sun: "SU",
-        Mon: "MO",
-        Tue: "TU",
-        Wed: "WE",
-        Thu: "TH",
-        Fri: "FR",
-        Sat: "SA",
-      };
-      const dayOfWeek = dayMap[taipeiDate] || "SU";
+      // 使用動態時區計算星期幾
+      const dayOfWeek = getDayOfWeekRRULE(firstTime, timezone, "en-US");
 
       // 計算總集數（如果已知）
       const totalEpisodes = data.Media?.episodes;
@@ -117,6 +114,14 @@ export async function GET(
   // 但如果有規律，只生成一個帶有 RRULE 的事件
   const events: IcsEvent[] = [];
 
+  // 取得時區顯示名稱（用於 i18n）
+  const timezoneDisplayName = getTimezoneDisplayName(timezone);
+  // 使用 locale 對應的時區名稱，如果沒有則回退到原始時區字串
+  const timezoneName =
+    timezoneDisplayName !== timezone
+      ? timezoneDisplayName
+      : timezone.replace(/_/g, " ");
+
   if (rrule) {
     // 生成單一重複事件
     const firstSchedule = schedules[0];
@@ -127,9 +132,11 @@ export async function GET(
       uid: `${media.id}-recurring@anidaze.app`,
       start,
       end,
-      summary: `${title}（台北時間）`,
+      summary: `${title} (${timezoneName})`,
       url: `${baseUrl}/title/${media.id}`,
-      description: `動畫播出時間（每週重複）\n連結： ${baseUrl}/title/${media.id}`,
+      description: `${t("ics.recurringDescription")}\n${t(
+        "ics.link"
+      )}: ${baseUrl}/title/${media.id}`,
       location: "TV / Streaming",
       rrule,
     });
@@ -143,9 +150,11 @@ export async function GET(
           uid: `${media.id}-ep${s.episode}@anidaze.app`,
           start,
           end,
-          summary: `${title} E${s.episode}（台北時間）`,
+          summary: `${title} E${s.episode} (${timezoneName})`,
           url: `${baseUrl}/title/${media.id}#ep${s.episode}`,
-          description: `連結： ${baseUrl}/title/${media.id}#ep${s.episode}`,
+          description: `${t("ics.link")}: ${baseUrl}/title/${media.id}#ep${
+            s.episode
+          }`,
           location: "TV / Streaming",
         };
       })

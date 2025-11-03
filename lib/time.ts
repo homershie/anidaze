@@ -102,3 +102,144 @@ export function getDayOfWeekName(dayOfWeek: number): string {
   const dayNames = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
   return dayNames[dayOfWeek] || "未知";
 }
+
+/**
+ * 驗證時區字串是否有效
+ * @param timezone 時區字串
+ * @returns 是否為有效的時區
+ */
+export function isValidTimezone(timezone: string): boolean {
+  try {
+    // 使用 Intl.DateTimeFormat 來驗證時區
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+    });
+    // 如果能夠格式化日期，表示時區有效
+    formatter.format(new Date());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 從請求中獲取時區（支援 query parameter、cookie、預設值）
+ * @param url 請求 URL
+ * @param timezoneCookie 時區 cookie 值
+ * @returns 有效的時區字串
+ */
+export function getTimezoneFromRequest(
+  url: URL,
+  timezoneCookie?: string | null
+): string {
+  // 優先順序：query parameter > cookie > 環境變數 > 預設值
+  const queryTz = url.searchParams.get("tz");
+  const cookieTz = timezoneCookie;
+  const envTz = process.env.TIMEZONE;
+  const defaultTz = "Asia/Taipei";
+
+  // 嘗試 query parameter
+  if (queryTz && isValidTimezone(queryTz)) {
+    return queryTz;
+  }
+
+  // 嘗試 cookie
+  if (cookieTz && isValidTimezone(cookieTz)) {
+    return cookieTz;
+  }
+
+  // 嘗試環境變數
+  if (envTz && isValidTimezone(envTz)) {
+    return envTz;
+  }
+
+  // 使用預設值
+  return defaultTz;
+}
+
+/**
+ * 取得星期幾的 RRULE 格式（SU, MO, TU, etc.）
+ * @param timestamp 時間戳（秒）
+ * @param timezone 時區
+ * @param locale 語系（用於格式化星期幾名稱）
+ * @returns RRULE 格式的星期幾（SU, MO, TU, WE, TH, FR, SA）
+ */
+export function getDayOfWeekRRULE(
+  timestamp: number,
+  timezone: string,
+  locale: string = "en-US"
+): string {
+  const date = new Date(timestamp * 1000);
+  const formatter = new Intl.DateTimeFormat(locale, {
+    timeZone: timezone,
+    weekday: "short",
+  });
+  const dayName = formatter.format(date);
+
+  // 支援多種語系的星期幾名稱
+  const dayMap: Record<string, string> = {
+    // English
+    Sun: "SU",
+    Mon: "MO",
+    Tue: "TU",
+    Wed: "WE",
+    Thu: "TH",
+    Fri: "FR",
+    Sat: "SA",
+    // 中文
+    週日: "SU",
+    週一: "MO",
+    週二: "TU",
+    週三: "WE",
+    週四: "TH",
+    週五: "FR",
+    週六: "SA",
+    星期日: "SU",
+    星期一: "MO",
+    星期二: "TU",
+    星期三: "WE",
+    星期四: "TH",
+    星期五: "FR",
+    星期六: "SA",
+    // Japanese
+    日: "SU",
+    月: "MO",
+    火: "TU",
+    水: "WE",
+    木: "TH",
+    金: "FR",
+    土: "SA",
+    日曜日: "SU",
+    月曜日: "MO",
+    火曜日: "TU",
+    水曜日: "WE",
+    木曜日: "TH",
+    金曜日: "FR",
+    土曜日: "SA",
+  };
+
+  return dayMap[dayName] || "SU";
+}
+
+/**
+ * 取得時區的顯示名稱（用於 i18n 文字）
+ * @param timezone 時區字串
+ * @returns 時區的簡短名稱（如 "Asia/Taipei" -> "台北時間"）
+ */
+export function getTimezoneDisplayName(timezone: string): string {
+  // 常見時區的對應名稱
+  const timezoneNames: Record<string, string> = {
+    "Asia/Taipei": "台北時間",
+    "Asia/Tokyo": "東京時間",
+    "Asia/Shanghai": "北京時間",
+    "Asia/Hong_Kong": "香港時間",
+    "Asia/Seoul": "首爾時間",
+    "America/New_York": "紐約時間",
+    "America/Los_Angeles": "洛杉磯時間",
+    "Europe/London": "倫敦時間",
+    "Europe/Paris": "巴黎時間",
+    "Australia/Sydney": "雪梨時間",
+  };
+
+  return timezoneNames[timezone] || timezone;
+}

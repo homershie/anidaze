@@ -1,7 +1,6 @@
 {
   "app": {
-    "title": "AniDaze — {year}年{season}アニメ",
-    "downloadSample": "iCal をダウンロード（サンプル）"
+    "title": "AniDaze — {year}年{season}アニメ"
   },
   "tabs": {
     "general": "一般コンテンツ ({count})",
@@ -124,5 +123,9 @@
       "Supernatural": "超自然",
       "Thriller": "スリラー"
     }
+  },
+  "ics": {
+    "recurringDescription": "アニメ放送時間（毎週繰り返し）",
+    "link": "リンク"
   }
 }

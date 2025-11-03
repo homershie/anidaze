@@ -1,7 +1,6 @@
 {
   "app": {
-    "title": "AniDaze — {season} {year} Anime",
-    "downloadSample": "Download iCal (Sample)"
+    "title": "AniDaze — {season} {year} Anime"
   },
   "tabs": {
     "general": "General ({count})",
@@ -124,5 +123,9 @@
       "Supernatural": "Supernatural",
       "Thriller": "Thriller"
     }
+  },
+  "ics": {
+    "recurringDescription": "Anime airing time (weekly recurring)",
+    "link": "Link"
   }
 }

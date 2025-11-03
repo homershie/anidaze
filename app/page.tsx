@@ -215,12 +215,6 @@ export default async function Home({
             selectedCountry={selectedCountry || ""}
             countryOptions={countrySelectOptions}
           />
-          <a
-            className="rounded bg-black px-3 py-1.5 text-white text-sm"
-            href="/api/ics/sample"
-          >
-            {t("app.downloadSample")}
-          </a>
         </div>
       </header>
 
