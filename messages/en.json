@@ -1,0 +1,66 @@
+{
+  "app": {
+    "title": "AniDaze — {season} {year} Anime",
+    "downloadSample": "Download iCal (Sample)"
+  },
+  "tabs": {
+    "general": "General ({count})",
+    "adult": "Adults ({count})"
+  },
+  "season": {
+    "winter": "Winter",
+    "spring": "Spring",
+    "summer": "Summer",
+    "fall": "Fall"
+  },
+  "stats": {
+    "total": "Total {count} anime ({currentSeason} new this season, {ongoing} ongoing)",
+    "totalWithCountry": "Total {count} anime ({currentSeason} new this season, {ongoing} ongoing) - {country}"
+  },
+  "media": {
+    "ongoing": "Ongoing",
+    "episode": "EP {episode}",
+    "nextAiring": "Next airing:",
+    "notYetReleased": "Not yet released",
+    "airingTimeUndecided": "Airing time undecided",
+    "viewDetails": "View details"
+  },
+  "day": {
+    "undecided": "Undecided",
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "country": {
+    "groups": {
+      "chinese": "Chinese Regions",
+      "asia": "Other Asia",
+      "other": "Other Regions"
+    },
+    "names": {
+      "JP": "Japan",
+      "CN": "China",
+      "KR": "South Korea",
+      "TW": "Taiwan",
+      "HK": "Hong Kong",
+      "US": "United States",
+      "GB": "United Kingdom",
+      "CA": "Canada",
+      "AU": "Australia",
+      "FR": "France",
+      "DE": "Germany",
+      "IT": "Italy",
+      "ES": "Spain",
+      "TH": "Thailand",
+      "SG": "Singapore",
+      "MY": "Malaysia",
+      "ID": "Indonesia",
+      "PH": "Philippines",
+      "VN": "Vietnam"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "app": {
+    "title": "AniDaze — {year}年{season}アニメ",
+    "downloadSample": "iCal をダウンロード（サンプル）"
+  },
+  "tabs": {
+    "general": "一般コンテンツ ({count})",
+    "adult": "成人向け ({count})"
+  },
+  "season": {
+    "winter": "冬季",
+    "spring": "春季",
+    "summer": "夏季",
+    "fall": "秋季"
+  },
+  "stats": {
+    "total": "合計 {count} 作品（{currentSeason} 作品が今期新作、{ongoing} 作品が長期放送）",
+    "totalWithCountry": "合計 {count} 作品（{currentSeason} 作品が今期新作、{ongoing} 作品が長期放送） - {country}"
+  },
+  "media": {
+    "ongoing": "長期放送",
+    "episode": "第 {episode} 話",
+    "nextAiring": "次回放送：",
+    "notYetReleased": "未放送",
+    "airingTimeUndecided": "放送時間未定",
+    "viewDetails": "詳細を見る"
+  },
+  "day": {
+    "undecided": "未定",
+    "sunday": "日曜日",
+    "monday": "月曜日",
+    "tuesday": "火曜日",
+    "wednesday": "水曜日",
+    "thursday": "木曜日",
+    "friday": "金曜日",
+    "saturday": "土曜日"
+  },
+  "country": {
+    "groups": {
+      "chinese": "中国語圏",
+      "asia": "その他のアジア",
+      "other": "その他"
+    },
+    "names": {
+      "JP": "日本",
+      "CN": "中国",
+      "KR": "韓国",
+      "TW": "台湾",
+      "HK": "香港",
+      "US": "アメリカ",
+      "GB": "イギリス",
+      "CA": "カナダ",
+      "AU": "オーストラリア",
+      "FR": "フランス",
+      "DE": "ドイツ",
+      "IT": "イタリア",
+      "ES": "スペイン",
+      "TH": "タイ",
+      "SG": "シンガポール",
+      "MY": "マレーシア",
+      "ID": "インドネシア",
+      "PH": "フィリピン",
+      "VN": "ベトナム"
+    }
+  }
+}

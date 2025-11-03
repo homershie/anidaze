@@ -7,15 +7,12 @@ import {
   type SeasonalMediaResponse,
   type SeasonalMediaItem,
 } from "@/lib/anilist";
-import {
-  formatLocal,
-  getCurrentSeason,
-  getDayOfWeek,
-  getDayOfWeekName,
-} from "@/lib/time";
+import { formatLocal, getCurrentSeason, getDayOfWeek } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CountrySelect } from "@/components/country-select";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { getTranslations } from "next-intl/server";
 
 async function getAllSeasonalMedia(
   season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
@@ -80,34 +77,11 @@ async function getAllOngoingMedia(
   return allMedia;
 }
 
-// 國家代碼到中文名稱的映射
-const COUNTRY_NAMES: Record<string, string> = {
-  JP: "日本",
-  CN: "中國",
-  KR: "韓國",
-  TW: "台灣",
-  HK: "香港",
-  US: "美國",
-  GB: "英國",
-  CA: "加拿大",
-  AU: "澳洲",
-  FR: "法國",
-  DE: "德國",
-  IT: "義大利",
-  ES: "西班牙",
-  TH: "泰國",
-  SG: "新加坡",
-  MY: "馬來西亞",
-  ID: "印尼",
-  PH: "菲律賓",
-  VN: "越南",
-};
-
-// 國家分組
-const COUNTRY_GROUPS: Record<string, string[]> = {
-  中文地區: ["TW", "HK", "CN"],
-  亞洲其他地區: ["JP", "KR", "TH", "SG", "MY", "ID", "PH", "VN"],
-  其他地區: ["US", "GB", "CA", "AU", "FR", "DE", "IT", "ES"],
+// 國家分組（用於動態生成）
+const COUNTRY_GROUP_CODES: Record<string, string[]> = {
+  chinese: ["TW", "HK", "CN"],
+  asia: ["JP", "KR", "TH", "SG", "MY", "ID", "PH", "VN"],
+  other: ["US", "GB", "CA", "AU", "FR", "DE", "IT", "ES"],
 };
 
 export default async function Home({
@@ -115,6 +89,7 @@ export default async function Home({
 }: {
   searchParams: Promise<{ country?: string }>;
 }) {
+  const t = await getTranslations();
   const { country: selectedCountry } = await searchParams;
   const { season, year } = getCurrentSeason();
 
@@ -188,10 +163,10 @@ export default async function Home({
   const adultMedia = filteredItems.filter((m) => m.isAdult);
 
   const seasonNames: Record<"WINTER" | "SPRING" | "SUMMER" | "FALL", string> = {
-    WINTER: "冬季",
-    SPRING: "春季",
-    SUMMER: "夏季",
-    FALL: "秋季",
+    WINTER: t("season.winter"),
+    SPRING: t("season.spring"),
+    SUMMER: t("season.summer"),
+    FALL: t("season.fall"),
   };
 
   // 生成國家選單選項（只顯示有作品的國家）
@@ -200,17 +175,22 @@ export default async function Home({
     countries: Array<{ code: string; name: string }>;
   }> = [];
 
-  Object.entries(COUNTRY_GROUPS).forEach(([groupName, countryCodes]) => {
+  Object.entries(COUNTRY_GROUP_CODES).forEach(([groupKey, countryCodes]) => {
     const availableCountries = countryCodes
       .filter((code) => countriesWithMedia.has(code))
-      .map((code) => ({
-        code,
-        name: COUNTRY_NAMES[code] || code,
-      }));
+      .map((code) => {
+        const countryKey = `country.names.${code}` as const;
+        return {
+          code,
+          name: (t(countryKey as "country.names.JP") || code) as string,
+        };
+      });
 
     if (availableCountries.length > 0) {
+      const groupKeyTyped = `country.groups.${groupKey}` as const;
       countrySelectOptions.push({
-        group: groupName,
+        group: (t(groupKeyTyped as "country.groups.chinese") ||
+          groupKey) as string,
         countries: availableCountries,
       });
     }
@@ -220,9 +200,10 @@ export default async function Home({
     <main className="mx-auto max-w-4xl p-6">
       <header className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">
-          AniDaze — {year}年{seasonNames[season]}動畫
+          {t("app.title", { year, season: seasonNames[season] })}
         </h1>
         <div className="flex items-center gap-4">
+          <LocaleSwitcher />
           <CountrySelect
             selectedCountry={selectedCountry || ""}
             countryOptions={countrySelectOptions}
@@ -231,7 +212,7 @@ export default async function Home({
             className="rounded bg-black px-3 py-1.5 text-white text-sm"
             href="/api/ics/sample"
           >
-            下載 iCal（示例）
+            {t("app.downloadSample")}
           </a>
         </div>
       </header>
@@ -239,18 +220,24 @@ export default async function Home({
       <p className="mt-2 text-sm text-gray-600">
         {selectedCountry && selectedCountry !== "" ? (
           <>
-            共 {filteredItems.length} 部動畫（
-            {filteredItems.filter((m) => m.isCurrentSeason).length} 部本季新番，
-            {filteredItems.filter((m) => !m.isCurrentSeason).length}{" "}
-            部長期播放） - {COUNTRY_NAMES[selectedCountry] || selectedCountry}
+            {t("stats.totalWithCountry", {
+              count: filteredItems.length,
+              currentSeason: filteredItems.filter((m) => m.isCurrentSeason)
+                .length,
+              ongoing: filteredItems.filter((m) => !m.isCurrentSeason).length,
+              country: (t(
+                `country.names.${selectedCountry}` as "country.names.JP"
+              ) || selectedCountry) as string,
+            })}
           </>
         ) : (
           <>
-            共 {itemsWithTitles.length} 部動畫（
-            {itemsWithTitles.filter((m) => m.isCurrentSeason).length}{" "}
-            部本季新番，
-            {itemsWithTitles.filter((m) => !m.isCurrentSeason).length}{" "}
-            部長期播放）
+            {t("stats.total", {
+              count: itemsWithTitles.length,
+              currentSeason: itemsWithTitles.filter((m) => m.isCurrentSeason)
+                .length,
+              ongoing: itemsWithTitles.filter((m) => !m.isCurrentSeason).length,
+            })}
           </>
         )}
       </p>
@@ -258,10 +245,10 @@ export default async function Home({
       <Tabs defaultValue="general" className="mt-6">
         <TabsList>
           <TabsTrigger value="general">
-            一般內容 ({generalMedia.length})
+            {t("tabs.general", { count: generalMedia.length })}
           </TabsTrigger>
           <TabsTrigger value="adult">
-            成人內容 ({adultMedia.length})
+            {t("tabs.adult", { count: adultMedia.length })}
           </TabsTrigger>
         </TabsList>
 
@@ -277,7 +264,8 @@ export default async function Home({
   );
 }
 
-function MediaList({
+// 將 MediaList 改為接受翻譯函數的參數
+async function MediaList({
   media,
 }: {
   media: Array<
@@ -288,6 +276,8 @@ function MediaList({
     }
   >;
 }) {
+  const t = await getTranslations();
+
   // 按星期分組作品
   // 0: 週日, 1: 週一, ..., 6: 週六, 7: 未定
   const groupedByDay: Record<number, typeof media> = {
@@ -314,13 +304,32 @@ function MediaList({
   // 星期順序：週日、週一、...、週六、未定
   const dayOrder = [0, 1, 2, 3, 4, 5, 6, 7];
 
+  const dayNameKeys: Record<
+    number,
+    | "day.sunday"
+    | "day.monday"
+    | "day.tuesday"
+    | "day.wednesday"
+    | "day.thursday"
+    | "day.friday"
+    | "day.saturday"
+  > = {
+    0: "day.sunday",
+    1: "day.monday",
+    2: "day.tuesday",
+    3: "day.wednesday",
+    4: "day.thursday",
+    5: "day.friday",
+    6: "day.saturday",
+  };
+
   return (
     <div className="space-y-6">
       {dayOrder.map((day) => {
         const dayMedia = groupedByDay[day];
         if (dayMedia.length === 0) return null;
 
-        const dayName = day === 7 ? "未定" : getDayOfWeekName(day);
+        const dayName = day === 7 ? t("day.undecided") : t(dayNameKeys[day]);
 
         return (
           <div key={day} className="space-y-3">
@@ -349,17 +358,19 @@ function MediaList({
                           </div>
                           {!mediaItem.isCurrentSeason && (
                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                              長期播放
+                              {t("media.ongoing")}
                             </span>
                           )}
                         </div>
                         {nextEpisode ? (
                           <>
                             <div className="text-sm text-gray-600">
-                              EP {nextEpisode.episode}
+                              {t("media.episode", {
+                                episode: nextEpisode.episode,
+                              })}
                             </div>
                             <div className="text-sm mt-1">
-                              下次播出：
+                              {t("media.nextAiring")}
                               {formatLocal(
                                 new Date(nextEpisode.airingAt * 1000)
                               )}
@@ -368,15 +379,15 @@ function MediaList({
                         ) : (
                           <div className="text-sm text-gray-500 mt-1">
                             {mediaItem.status === "NOT_YET_RELEASED"
-                              ? "尚未播出"
-                              : "播出時間未定"}
+                              ? t("media.notYetReleased")
+                              : t("media.airingTimeUndecided")}
                           </div>
                         )}
                         <Link
                           href={`/title/${mediaItem.id}`}
                           className="mt-2 inline-block text-sm text-blue-600 hover:underline"
                         >
-                          查看詳情
+                          {t("media.viewDetails")}
                         </Link>
                       </div>
                     </div>
