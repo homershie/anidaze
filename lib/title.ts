@@ -1,4 +1,4 @@
-import { findLocalizedTitleFromTMDB } from "./tmdb";
+import { findLocalizedTitleFromTMDB, findChineseTitleFromTMDB } from "./tmdb";
 import { findLocalizedTitleFromWikipedia } from "./wikipedia";
 import type { AppLocale } from "@/i18n/routing";
 
