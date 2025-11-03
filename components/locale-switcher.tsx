@@ -5,9 +5,12 @@ import { useRouter, usePathname } from "@/i18n/navigation";
 import { locales, localeNames, type AppLocale } from "@/i18n/routing";
 import { useTransition } from "react";
 import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function LocaleSwitcher() {
   const locale = useLocale() as AppLocale;
@@ -15,8 +18,8 @@ export function LocaleSwitcher() {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocale = e.target.value as AppLocale;
+  const handleValueChange = (value: string) => {
+    const newLocale = value as AppLocale;
     
     // 使用 router.replace 並設置 locale，next-intl 會處理 cookie 設置
     router.replace(pathname, { locale: newLocale });
@@ -30,18 +33,18 @@ export function LocaleSwitcher() {
   };
 
   return (
-    <NativeSelect
-      value={locale}
-      onChange={handleChange}
-      aria-label="選擇語言"
-      className="w-40"
-    >
-      {locales.map((loc) => (
-        <NativeSelectOption key={loc} value={loc}>
-          {localeNames[loc]}
-        </NativeSelectOption>
-      ))}
-    </NativeSelect>
+    <Select value={locale} onValueChange={handleValueChange}>
+      <SelectTrigger className="w-40" aria-label="選擇語言">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {locales.map((loc) => (
+          <SelectItem key={loc} value={loc}>
+            {localeNames[loc]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
