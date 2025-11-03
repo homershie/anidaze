@@ -10,7 +10,8 @@ import {
 import { formatLocal, getCurrentSeason, getDayOfWeek } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CountrySelect } from "@/components/country-select";
+import { Separator } from "@/components/ui/separator";
+import { CountryTags } from "@/components/country-tags";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -213,10 +214,6 @@ export default async function Home({
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <LocaleSwitcher />
-          <CountrySelect
-            selectedCountry={selectedCountry || ""}
-            countryOptions={countrySelectOptions}
-          />
         </div>
       </header>
 
@@ -244,16 +241,24 @@ export default async function Home({
           </>
         )}
       </p>
+      <Separator className="my-4" />
 
       <Tabs defaultValue="general" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="general">
-            {t("tabs.general", { count: generalMedia.length })}
-          </TabsTrigger>
-          <TabsTrigger value="adult">
-            {t("tabs.adult", { count: adultMedia.length })}
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="general">
+              {t("tabs.general", { count: generalMedia.length })}
+            </TabsTrigger>
+            <TabsTrigger value="adult">
+              {t("tabs.adult", { count: adultMedia.length })}
+            </TabsTrigger>
+          </TabsList>
+
+          <CountryTags
+            selectedCountry={selectedCountry || ""}
+            countryOptions={countrySelectOptions}
+          />
+        </div>
 
         <TabsContent value="general" className="mt-4">
           <MediaList media={generalMedia} />
