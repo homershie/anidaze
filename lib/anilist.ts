@@ -49,6 +49,26 @@ export const AIRING_QUERY = /* GraphQL */ `
   }
 `;
 
+export const AIRING_BY_MEDIA_QUERY = /* GraphQL */ `
+  query AiringByMedia($mediaId: Int!, $page: Int!, $perPage: Int!) {
+    Page(page: $page, perPage: $perPage) {
+      airingSchedules(mediaId: $mediaId, sort: TIME, notYetAired: true) {
+        id
+        episode
+        airingAt
+      }
+    }
+    Media(id: $mediaId) {
+      id
+      title {
+        romaji
+        english
+        native
+      }
+    }
+  }
+`;
+
 // Types for the Airing query response used across the app
 export type AiringItem = {
   id: number;
@@ -77,4 +97,22 @@ export type AiringResponse = {
     };
     airingSchedules: AiringItem[];
   };
+};
+
+export type AiringByMediaResponse = {
+  Page: {
+    airingSchedules: Array<{
+      id: number;
+      episode: number;
+      airingAt: number;
+    }>;
+  };
+  Media: {
+    id: number;
+    title: {
+      romaji: string | null;
+      english: string | null;
+      native: string | null;
+    };
+  } | null;
 };
