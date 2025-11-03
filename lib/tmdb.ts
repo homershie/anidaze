@@ -9,7 +9,28 @@ export type TMDBAlternativeTitle = {
 
 export type TMDBAlternativeTitlesResponse = {
   id: number;
-  titles: TMDBAlternativeTitle[];
+  titles?: TMDBAlternativeTitle[]; // Movie format
+  results?: TMDBAlternativeTitle[]; // TV format
+};
+
+// TMDB translations response type
+export type TMDBTranslation = {
+  iso_3166_1: string;
+  iso_639_1: string;
+  name: string;
+  english_name: string;
+  data: {
+    name?: string;
+    title?: string;
+    overview?: string;
+    homepage?: string;
+    tagline?: string;
+  };
+};
+
+export type TMDBTranslationsResponse = {
+  id: number;
+  translations: TMDBTranslation[];
 };
 
 // TMDB search result types
@@ -138,6 +159,38 @@ export async function getTMDBAlternativeTitles(
 }
 
 /**
+ * Get translations for a TMDB entry
+ * @param tmdbId - The TMDB entry ID
+ * @param mediaType - The media type ('movie', 'tv', or 'multi')
+ */
+export async function getTMDBTranslations(
+  tmdbId: number,
+  mediaType: "movie" | "tv" | "multi" = "tv"
+): Promise<TMDBTranslationsResponse> {
+  // Use 'tv' for anime series
+  const endpoint = mediaType === "tv" ? "tv" : "movie";
+  const url = new URL(`${TMDB_ENDPOINT}/${endpoint}/${tmdbId}/translations`);
+
+  // Add authentication query params if using API key
+  const authParams = getTMDBAuthParams();
+  if (authParams) {
+    url.searchParams.set("api_key", authParams.api_key);
+  }
+
+  const headers = getTMDBAuthHeaders();
+  const res = await fetch(url.toString(), {
+    headers,
+    next: { revalidate: 60 * 60 * 24 }, // Cache for 24 hours
+  });
+
+  if (!res.ok) {
+    throw new Error(`TMDB translations error ${res.status}`);
+  }
+
+  return res.json();
+}
+
+/**
  * Find Chinese title from TMDB by searching with native (Japanese) or English title
  * @param nativeTitle - Japanese title
  * @param englishTitle - English title
@@ -180,26 +233,73 @@ export async function findChineseTitleFromTMDB(
     // Determine media type
     const mediaType = firstResult.media_type === "movie" ? "movie" : "tv";
 
-    // Get alternative titles
+    // Try alternative titles first (for official alternative titles)
     const altTitles = await getTMDBAlternativeTitles(firstResult.id, mediaType);
 
-    // Check if titles exists and is an array
-    if (!altTitles.titles || !Array.isArray(altTitles.titles)) {
-      return null;
+    // TV uses "results", Movie uses "titles"
+    const titles = altTitles.results || altTitles.titles;
+
+    if (titles && Array.isArray(titles)) {
+      // Look for Chinese titles in alternative titles with priority:
+      // 1. Taiwan (Traditional)
+      // 2. Hong Kong (Traditional)
+      // 3. Mainland China (Simplified)
+      const twTitle = titles.find((title) => title.iso_3166_1 === "TW");
+      if (twTitle) return twTitle.title;
+
+      const hkTitle = titles.find((title) => title.iso_3166_1 === "HK");
+      if (hkTitle) return hkTitle.title;
+
+      const cnTitle = titles.find((title) => title.iso_3166_1 === "CN");
+      if (cnTitle) return cnTitle.title;
     }
 
-    // Look for Chinese titles with priority:
-    // 1. Taiwan (Traditional)
-    // 2. Hong Kong (Traditional)
-    // 3. Mainland China (Simplified)
-    const twTitle = altTitles.titles.find((title) => title.iso_3166_1 === "TW");
-    if (twTitle) return twTitle.title;
+    // Fallback to translations API (more comprehensive)
+    try {
+      const translations = await getTMDBTranslations(firstResult.id, mediaType);
 
-    const hkTitle = altTitles.titles.find((title) => title.iso_3166_1 === "HK");
-    if (hkTitle) return hkTitle.title;
+      if (
+        translations.translations &&
+        Array.isArray(translations.translations)
+      ) {
+        // Look for Chinese titles with priority:
+        // 1. Taiwan (Traditional)
+        // 2. Hong Kong (Traditional)
+        // 3. Mainland China (Simplified)
+        const twTranslation = translations.translations.find(
+          (t) => t.iso_3166_1 === "TW" && t.iso_639_1 === "zh"
+        );
+        if (twTranslation && twTranslation.data.name) {
+          return twTranslation.data.name;
+        }
+        if (twTranslation && twTranslation.data.title) {
+          return twTranslation.data.title;
+        }
 
-    const cnTitle = altTitles.titles.find((title) => title.iso_3166_1 === "CN");
-    if (cnTitle) return cnTitle.title;
+        const hkTranslation = translations.translations.find(
+          (t) => t.iso_3166_1 === "HK" && t.iso_639_1 === "zh"
+        );
+        if (hkTranslation && hkTranslation.data.name) {
+          return hkTranslation.data.name;
+        }
+        if (hkTranslation && hkTranslation.data.title) {
+          return hkTranslation.data.title;
+        }
+
+        const cnTranslation = translations.translations.find(
+          (t) => t.iso_3166_1 === "CN" && t.iso_639_1 === "zh"
+        );
+        if (cnTranslation && cnTranslation.data.name) {
+          return cnTranslation.data.name;
+        }
+        if (cnTranslation && cnTranslation.data.title) {
+          return cnTranslation.data.title;
+        }
+      }
+    } catch {
+      // If translations fails, return null
+      console.log("Translations API failed");
+    }
 
     return null;
   } catch (error) {
