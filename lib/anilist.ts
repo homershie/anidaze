@@ -168,6 +168,7 @@ export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
         season
         seasonYear
         status
+        isAdult
         tags {
           id
           name
@@ -205,6 +206,7 @@ export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
         season
         seasonYear
         status
+        isAdult
         tags {
           id
           name
@@ -320,6 +322,7 @@ export type SeasonalMediaItem = {
   season: string | null;
   seasonYear: number | null;
   status: string | null;
+  isAdult?: boolean | null;
   tags?: Array<{
     id: number;
     name: string;
