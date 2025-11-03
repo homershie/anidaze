@@ -62,5 +62,66 @@
       "PH": "フィリピン",
       "VN": "ベトナム"
     }
+  },
+  "title": {
+    "notFound": "作品が見つかりません",
+    "backToList": "← リストに戻る",
+    "addToCalendar": "カレンダーに追加",
+    "scores": "評価",
+    "users": "ユーザー",
+    "ratings": "評価",
+    "rank": "MAL ランク",
+    "siteRank": "サイトランク",
+    "info": "作品情報",
+    "type": "種類：",
+    "episodes": "話数：",
+    "status": "ステータス：",
+    "season": "シーズン：",
+    "genres": "ジャンル",
+    "studios": "制作会社",
+    "description": "あらすじ",
+    "malDescription": "MyAnimeList あらすじ"
+  },
+  "anilist": {
+    "format": {
+      "TV": "TV",
+      "TV_SHORT": "TV ショート",
+      "MOVIE": "映画",
+      "SPECIAL": "スペシャル",
+      "OVA": "OVA",
+      "ONA": "ONA",
+      "MUSIC": "音楽",
+      "MANGA": "漫画",
+      "NOVEL": "小説",
+      "ONE_SHOT": "読み切り"
+    },
+    "status": {
+      "FINISHED": "完結",
+      "RELEASING": "放送中",
+      "NOT_YET_RELEASED": "未放送",
+      "CANCELLED": "キャンセル",
+      "HIATUS": "休止"
+    },
+    "genres": {
+      "Action": "アクション",
+      "Adventure": "アドベンチャー",
+      "Comedy": "コメディ",
+      "Drama": "ドラマ",
+      "Ecchi": "エッチ",
+      "Fantasy": "ファンタジー",
+      "Hentai": "ヘンタイ",
+      "Horror": "ホラー",
+      "Mahou Shoujo": "魔法少女",
+      "Mecha": "メカ",
+      "Music": "音楽",
+      "Mystery": "ミステリー",
+      "Psychological": "サイコ",
+      "Romance": "ロマンス",
+      "Sci-Fi": "SF",
+      "Slice of Life": "日常",
+      "Sports": "スポーツ",
+      "Supernatural": "超自然",
+      "Thriller": "スリラー"
+    }
   }
 }

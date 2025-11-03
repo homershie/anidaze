@@ -62,5 +62,66 @@
       "PH": "菲律賓",
       "VN": "越南"
     }
+  },
+  "title": {
+    "notFound": "作品不存在",
+    "backToList": "← 返回列表",
+    "addToCalendar": "加入行事曆",
+    "scores": "評分",
+    "users": "用戶",
+    "ratings": "評分",
+    "rank": "MAL 排名",
+    "siteRank": "全站排名",
+    "info": "作品資訊",
+    "type": "類型：",
+    "episodes": "集數：",
+    "status": "狀態：",
+    "season": "季度：",
+    "genres": "類型",
+    "studios": "製作公司",
+    "description": "簡介",
+    "malDescription": "MyAnimeList 簡介"
+  },
+  "anilist": {
+    "format": {
+      "TV": "TV",
+      "TV_SHORT": "TV 短篇",
+      "MOVIE": "電影",
+      "SPECIAL": "特別篇",
+      "OVA": "OVA",
+      "ONA": "ONA",
+      "MUSIC": "音樂",
+      "MANGA": "漫畫",
+      "NOVEL": "小說",
+      "ONE_SHOT": "單篇"
+    },
+    "status": {
+      "FINISHED": "完結",
+      "RELEASING": "播出中",
+      "NOT_YET_RELEASED": "尚未播出",
+      "CANCELLED": "已取消",
+      "HIATUS": "暫停"
+    },
+    "genres": {
+      "Action": "動作",
+      "Adventure": "冒險",
+      "Comedy": "喜劇",
+      "Drama": "劇情",
+      "Ecchi": "色色",
+      "Fantasy": "奇幻",
+      "Hentai": "成人",
+      "Horror": "恐怖",
+      "Mahou Shoujo": "魔法少女",
+      "Mecha": "機甲",
+      "Music": "音樂",
+      "Mystery": "懸疑",
+      "Psychological": "心理",
+      "Romance": "戀愛",
+      "Sci-Fi": "科幻",
+      "Slice of Life": "日常",
+      "Sports": "運動",
+      "Supernatural": "超自然",
+      "Thriller": "驚悚"
+    }
   }
 }

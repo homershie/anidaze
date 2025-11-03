@@ -62,5 +62,66 @@
       "PH": "Philippines",
       "VN": "Vietnam"
     }
+  },
+  "title": {
+    "notFound": "Title not found",
+    "backToList": "← Back to list",
+    "addToCalendar": "Add to calendar",
+    "scores": "Scores",
+    "users": "users",
+    "ratings": "ratings",
+    "rank": "MAL Rank",
+    "siteRank": "Site rank",
+    "info": "Information",
+    "type": "Type:",
+    "episodes": "Episodes:",
+    "status": "Status:",
+    "season": "Season:",
+    "genres": "Genres",
+    "studios": "Studios",
+    "description": "Description",
+    "malDescription": "MyAnimeList Description"
+  },
+  "anilist": {
+    "format": {
+      "TV": "TV",
+      "TV_SHORT": "TV Short",
+      "MOVIE": "Movie",
+      "SPECIAL": "Special",
+      "OVA": "OVA",
+      "ONA": "ONA",
+      "MUSIC": "Music",
+      "MANGA": "Manga",
+      "NOVEL": "Novel",
+      "ONE_SHOT": "One Shot"
+    },
+    "status": {
+      "FINISHED": "Finished",
+      "RELEASING": "Releasing",
+      "NOT_YET_RELEASED": "Not yet released",
+      "CANCELLED": "Cancelled",
+      "HIATUS": "Hiatus"
+    },
+    "genres": {
+      "Action": "Action",
+      "Adventure": "Adventure",
+      "Comedy": "Comedy",
+      "Drama": "Drama",
+      "Ecchi": "Ecchi",
+      "Fantasy": "Fantasy",
+      "Hentai": "Hentai",
+      "Horror": "Horror",
+      "Mahou Shoujo": "Mahou Shoujo",
+      "Mecha": "Mecha",
+      "Music": "Music",
+      "Mystery": "Mystery",
+      "Psychological": "Psychological",
+      "Romance": "Romance",
+      "Sci-Fi": "Sci-Fi",
+      "Slice of Life": "Slice of Life",
+      "Sports": "Sports",
+      "Supernatural": "Supernatural",
+      "Thriller": "Thriller"
+    }
   }
 }
