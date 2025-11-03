@@ -14,9 +14,34 @@ export async function anilist<T>(
     ...(init ?? {}),
   });
   if (!res.ok) {
-    throw new Error(`AniList error ${res.status}`);
+    const errorText = await res.text();
+    let errorMessage = `AniList error ${res.status}`;
+    try {
+      const errorJson = JSON.parse(errorText) as {
+        errors?: Array<{ message: string }>;
+        message?: string;
+      };
+      if (errorJson.errors) {
+        errorMessage += `: ${errorJson.errors
+          .map((e) => e.message)
+          .join(", ")}`;
+      } else if (errorJson.message) {
+        errorMessage += `: ${errorJson.message}`;
+      }
+    } catch {
+      errorMessage += `: ${errorText}`;
+    }
+    throw new Error(errorMessage);
   }
-  const json = await res.json();
+  const json = (await res.json()) as {
+    data?: T;
+    errors?: Array<{ message: string }>;
+  };
+  if (json.errors) {
+    throw new Error(
+      `AniList GraphQL errors: ${json.errors.map((e) => e.message).join(", ")}`
+    );
+  }
   return json.data as T;
 }
 

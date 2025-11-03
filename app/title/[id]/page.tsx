@@ -11,9 +11,10 @@ import { getJikanMetadata, extractMALIdFromAniList } from "@/lib/jikan";
 export default async function TitlePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const id = parseInt(params.id, 10);
+  const { id: idString } = await params;
+  const id = parseInt(idString, 10);
 
   // Fetch AniList data
   const anilistData = await anilist<MediaDetailResponse>(
