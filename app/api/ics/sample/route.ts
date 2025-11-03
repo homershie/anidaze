@@ -2,14 +2,13 @@ import { NextResponse } from "next/server";
 import { anilist, AIRING_QUERY, type AiringResponse } from "@/lib/anilist";
 import { buildICS, type IcsEvent } from "@/lib/ics";
 
-export const revalidate = 60 * 60 * 6; // cache the ICS for 6h as well
 export const dynamic = "force-static";
 
 export async function GET() {
   const data = await anilist<AiringResponse>(
     AIRING_QUERY,
     { page: 1, perPage: 10 },
-    { next: { revalidate, tags: ["airing-ics"] } }
+    { next: { revalidate: 60 * 60 * 6, tags: ["airing-ics"] } }
   );
 
   const events: IcsEvent[] = data.Page.airingSchedules.map((a) => {

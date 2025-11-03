@@ -3,13 +3,11 @@ import Link from "next/link";
 import { anilist, AIRING_QUERY, type AiringResponse } from "@/lib/anilist";
 import { formatLocal } from "@/lib/time";
 
-export const revalidate = 60 * 60 * 6; // 6h
-
 export default async function Home() {
   const data = await anilist<AiringResponse>(
     AIRING_QUERY,
     { page: 1, perPage: 30 },
-    { next: { revalidate, tags: ["airing"] } }
+    { next: { revalidate: 60 * 60 * 6, tags: ["airing"] } }
   );
 
   const items = data.Page.airingSchedules;
