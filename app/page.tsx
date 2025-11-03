@@ -12,7 +12,8 @@ import { getBestTitle } from "@/lib/title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CountrySelect } from "@/components/country-select";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 
 async function getAllSeasonalMedia(
   season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
@@ -116,15 +117,21 @@ export default async function Home({
       media.nextAiringEpisode !== null && media.nextAiringEpisode !== undefined
   );
 
+  // Get current locale for title fetching
+  const locale = await getLocale();
+
   // Fetch titles with TMDB Chinese support
   const itemsWithTitles = await Promise.all(
     mediaWithAiringSchedule.map(async (media: SeasonalMediaItem) => {
-      const title = await getBestTitle({
-        romaji: media.title.romaji,
-        english: media.title.english,
-        native: media.title.native,
-        synonyms: media.synonyms,
-      });
+      const title = await getBestTitle(
+        {
+          romaji: media.title.romaji,
+          english: media.title.english,
+          native: media.title.native,
+          synonyms: media.synonyms,
+        },
+        locale as AppLocale
+      );
 
       // 判斷是否為當前季節作品
       const isCurrentSeason =

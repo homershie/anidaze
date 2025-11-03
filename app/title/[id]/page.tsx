@@ -7,6 +7,8 @@ import {
 } from "@/lib/anilist";
 import { getBestTitle } from "@/lib/title";
 import { getJikanMetadata, extractMALIdFromAniList } from "@/lib/jikan";
+import { getLocale } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 
 export default async function TitlePage({
   params,
@@ -40,13 +42,19 @@ export default async function TitlePage({
     );
   }
 
+  // Get current locale for title fetching
+  const locale = await getLocale();
+
   // Get title with TMDB Chinese support
-  const title = await getBestTitle({
-    romaji: media.title.romaji,
-    english: media.title.english,
-    native: media.title.native,
-    synonyms: media.synonyms,
-  });
+  const title = await getBestTitle(
+    {
+      romaji: media.title.romaji,
+      english: media.title.english,
+      native: media.title.native,
+      synonyms: media.synonyms,
+    },
+    locale as AppLocale
+  );
 
   // Extract MAL ID from AniList external links
   const malId = extractMALIdFromAniList(media.externalLinks);

@@ -6,6 +6,9 @@ import {
 } from "@/lib/anilist";
 import { buildICS, type IcsEvent } from "@/lib/ics";
 import { getBestTitle } from "@/lib/title";
+import { cookies } from "next/headers";
+import { routing } from "@/i18n/routing";
+import type { AppLocale } from "@/i18n/routing";
 
 export async function GET(
   req: Request,
@@ -37,12 +40,24 @@ export async function GET(
       { status: 404 }
     );
   }
-  const title = await getBestTitle({
-    romaji: media.title.romaji,
-    english: media.title.english,
-    native: media.title.native,
-    synonyms: media.synonyms,
-  });
+
+  // Get locale from cookies (fallback to default)
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get("NEXT_LOCALE")?.value;
+  const locale: AppLocale =
+    localeCookie && routing.locales.includes(localeCookie as AppLocale)
+      ? (localeCookie as AppLocale)
+      : routing.defaultLocale;
+
+  const title = await getBestTitle(
+    {
+      romaji: media.title.romaji,
+      english: media.title.english,
+      native: media.title.native,
+      synonyms: media.synonyms,
+    },
+    locale
+  );
 
   // Prefer configured base URL; fallback to request origin
   const baseUrl =

@@ -1,5 +1,6 @@
-import { findChineseTitleFromTMDB } from "./tmdb";
-import { findChineseTitleFromWikipedia } from "./wikipedia";
+import { findLocalizedTitleFromTMDB } from "./tmdb";
+import { findLocalizedTitleFromWikipedia } from "./wikipedia";
+import type { AppLocale } from "@/i18n/routing";
 
 export type TitleInfo = {
   romaji: string | null;
@@ -9,19 +10,53 @@ export type TitleInfo = {
 };
 
 /**
- * Get the best available title based on priority:
- * 1. Traditional Chinese from TMDB (if TMDB_API_KEY is available)
- * 2. Traditional Chinese from Wikipedia (if TMDB fails)
- * 3. synonyms (from AniList)
- * 4. native (Japanese)
- * 5. romaji
- * 6. english
+ * Get the best available title based on locale and priority
+ * @param titleInfo - Title information from AniList
+ * @param locale - Target locale ('zh-TW', 'ja', 'en')
+ * @returns Best available title for the specified locale
  */
-export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
+export async function getBestTitle(
+  titleInfo: TitleInfo,
+  locale: AppLocale = "zh-TW"
+): Promise<string> {
+  // For Japanese locale: directly use native (Japanese) title from AniList
+  if (locale === "ja") {
+    if (titleInfo.native) {
+      return titleInfo.native;
+    }
+    // Fallback to romaji if native is not available
+    if (titleInfo.romaji) {
+      return titleInfo.romaji;
+    }
+    // Fallback to english
+    if (titleInfo.english) {
+      return titleInfo.english;
+    }
+    return "Unknown";
+  }
+
+  // For English locale: directly use english title from AniList
+  if (locale === "en") {
+    if (titleInfo.english) {
+      return titleInfo.english;
+    }
+    // Fallback to romaji
+    if (titleInfo.romaji) {
+      return titleInfo.romaji;
+    }
+    // Fallback to native
+    if (titleInfo.native) {
+      return titleInfo.native;
+    }
+    return "Unknown";
+  }
+
+  // For Traditional Chinese (zh-TW): need to fetch from TMDB/Wikipedia
   // Priority 1: Try to get Traditional Chinese from TMDB
-  const chineseTitle = await findChineseTitleFromTMDB(
+  const chineseTitle = await findLocalizedTitleFromTMDB(
     titleInfo.native,
-    titleInfo.english
+    titleInfo.english,
+    "zh-TW"
   );
   if (chineseTitle) {
     return chineseTitle;
@@ -37,7 +72,7 @@ export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
 
   for (const candidate of titleCandidates) {
     if (candidate) {
-      const wikipediaTitle = await findChineseTitleFromWikipedia(candidate);
+      const wikipediaTitle = await findLocalizedTitleFromWikipedia(candidate, "zh-TW");
       if (wikipediaTitle) {
         return wikipediaTitle;
       }
@@ -52,7 +87,7 @@ export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
     }
   }
 
-  // Priority 4: native (Japanese)
+  // Priority 4: native (Japanese) as fallback
   if (titleInfo.native) {
     return titleInfo.native;
   }

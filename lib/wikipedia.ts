@@ -177,20 +177,25 @@ export async function getWikidataId(pageTitle: string): Promise<string | null> {
 }
 
 /**
- * Get Chinese label from Wikidata entity
+ * Get localized label from Wikidata entity
  * @param entityId - The Wikidata entity ID (QID)
- * @returns Chinese label or null if not found
+ * @param locale - Target locale ('zh-TW', 'ja', 'en')
+ * @returns Localized label or null if not found
  */
-export async function getWikidataChineseLabel(
-  entityId: string
+export async function getWikidataLocalizedLabel(
+  entityId: string,
+  locale: "zh-TW" | "ja" | "en" = "zh-TW"
 ): Promise<string | null> {
   try {
+    // Map locale to Wikipedia language codes
+    const languageCodes = locale === "zh-TW" ? ["zh", "zh-Hant"] : locale === "ja" ? ["ja"] : ["en"];
+    
     const url = new URL(WIKIDATA_ENDPOINT);
     url.searchParams.set("action", "wbgetentities");
     url.searchParams.set("format", "json");
     url.searchParams.set("ids", entityId);
     url.searchParams.set("props", "labels|aliases");
-    url.searchParams.set("languages", "zh");
+    url.searchParams.set("languages", languageCodes.join("|"));
     url.searchParams.set("origin", "*");
 
     const res = await fetch(url.toString(), {
@@ -206,45 +211,43 @@ export async function getWikidataChineseLabel(
     if (data.entities && data.entities[entityId]) {
       const entity = data.entities[entityId];
 
-      // Try to get Chinese label (zh)
-      if (entity.labels?.zh) {
-        const label = entity.labels.zh.value;
-        // Validate the label is not a list page
-        if (!shouldFilterWikipediaResult(label)) {
-          return label;
+      // Try each language code in order
+      for (const langCode of languageCodes) {
+        // Try labels first
+        if (entity.labels?.[langCode]) {
+          const label = entity.labels[langCode].value;
+          if (!shouldFilterWikipediaResult(label)) {
+            return label;
+          }
         }
-      }
 
-      // Try to get Traditional Chinese label (zh-Hant)
-      if (entity.labels?.["zh-Hant"]) {
-        const label = entity.labels["zh-Hant"].value;
-        // Validate the label is not a list page
-        if (!shouldFilterWikipediaResult(label)) {
-          return label;
-        }
-      }
-
-      // Try aliases if no label found
-      if (entity.aliases?.zh && entity.aliases.zh.length > 0) {
-        const label = entity.aliases.zh[0].value;
-        if (!shouldFilterWikipediaResult(label)) {
-          return label;
-        }
-      }
-
-      if (entity.aliases?.["zh-Hant"] && entity.aliases["zh-Hant"].length > 0) {
-        const label = entity.aliases["zh-Hant"][0].value;
-        if (!shouldFilterWikipediaResult(label)) {
-          return label;
+        // Try aliases if no label found
+        if (entity.aliases?.[langCode] && entity.aliases[langCode].length > 0) {
+          const label = entity.aliases[langCode][0].value;
+          if (!shouldFilterWikipediaResult(label)) {
+            return label;
+          }
         }
       }
     }
 
     return null;
   } catch (error) {
-    console.error("Error fetching Wikidata Chinese label:", error);
+    console.error(`Error fetching Wikidata ${locale} label:`, error);
     return null;
   }
+}
+
+/**
+ * Get Chinese label from Wikidata entity
+ * @param entityId - The Wikidata entity ID (QID)
+ * @returns Chinese label or null if not found
+ * @deprecated Use getWikidataLocalizedLabel instead
+ */
+export async function getWikidataChineseLabel(
+  entityId: string
+): Promise<string | null> {
+  return getWikidataLocalizedLabel(entityId, "zh-TW");
 }
 
 /**
@@ -301,16 +304,22 @@ function shouldFilterWikipediaResult(pageTitle: string): boolean {
 }
 
 /**
- * Find Traditional Chinese title from Wikipedia/Wikidata
- * This function searches Wikipedia with the given title and attempts to find
- * a Chinese translation through langlinks or Wikidata
+ * Find localized title from Wikipedia/Wikidata
  * @param title - The title to search for (Japanese or English)
- * @returns Traditional Chinese title if found, null otherwise
+ * @param locale - Target locale ('zh-TW', 'ja', 'en')
+ * @returns Localized title if found, null otherwise
  */
-export async function findChineseTitleFromWikipedia(
-  title: string
+export async function findLocalizedTitleFromWikipedia(
+  title: string,
+  locale: "zh-TW" | "ja" | "en" = "zh-TW"
 ): Promise<string | null> {
   if (!title) {
+    return null;
+  }
+
+  // For Japanese and English, Wikipedia is not needed as AniList already provides them
+  // Only Traditional Chinese needs Wikipedia lookup
+  if (locale !== "zh-TW") {
     return null;
   }
 
@@ -344,7 +353,7 @@ export async function findChineseTitleFromWikipedia(
     // Method 2: Try via Wikidata
     const wikidataId = await getWikidataId(firstResult.title);
     if (wikidataId) {
-      const chineseLabel = await getWikidataChineseLabel(wikidataId);
+      const chineseLabel = await getWikidataLocalizedLabel(wikidataId, "zh-TW");
       if (chineseLabel) {
         return chineseLabel;
       }
@@ -355,5 +364,19 @@ export async function findChineseTitleFromWikipedia(
     console.error("Error fetching Chinese title from Wikipedia:", error);
     return null;
   }
+}
+
+/**
+ * Find Traditional Chinese title from Wikipedia/Wikidata
+ * This function searches Wikipedia with the given title and attempts to find
+ * a Chinese translation through langlinks or Wikidata
+ * @param title - The title to search for (Japanese or English)
+ * @returns Traditional Chinese title if found, null otherwise
+ * @deprecated Use findLocalizedTitleFromWikipedia instead
+ */
+export async function findChineseTitleFromWikipedia(
+  title: string
+): Promise<string | null> {
+  return findLocalizedTitleFromWikipedia(title, "zh-TW");
 }
 
