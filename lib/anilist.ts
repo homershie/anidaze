@@ -167,6 +167,11 @@ export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
         season
         seasonYear
         status
+        tags {
+          id
+          name
+          isAdult
+        }
         nextAiringEpisode {
           episode
           airingAt
@@ -198,6 +203,11 @@ export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
         season
         seasonYear
         status
+        tags {
+          id
+          name
+          isAdult
+        }
         nextAiringEpisode {
           episode
           airingAt
@@ -307,6 +317,11 @@ export type SeasonalMediaItem = {
   season: string | null;
   seasonYear: number | null;
   status: string | null;
+  tags?: Array<{
+    id: number;
+    name: string;
+    isAdult: boolean | null;
+  } | null> | null;
   nextAiringEpisode?: {
     episode: number;
     airingAt: number;

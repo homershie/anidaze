@@ -9,6 +9,7 @@ import {
 } from "@/lib/anilist";
 import { formatLocal, getCurrentSeason } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 async function getAllSeasonalMedia(
   season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
@@ -107,9 +108,21 @@ export default async function Home() {
       const isCurrentSeason =
         media.season === season && media.seasonYear === year;
 
-      return { ...media, displayTitle: title, isCurrentSeason };
+      // 判斷是否為成人內容（根據 tags 中的 isAdult）
+      const isAdult = media.tags?.some((tag) => tag?.isAdult === true) ?? false;
+
+      return {
+        ...media,
+        displayTitle: title,
+        isCurrentSeason,
+        isAdult,
+      };
     })
   );
+
+  // 分類作品
+  const generalMedia = itemsWithTitles.filter((m) => !m.isAdult);
+  const adultMedia = itemsWithTitles.filter((m) => m.isAdult);
 
   const seasonNames: Record<"WINTER" | "SPRING" | "SUMMER" | "FALL", string> = {
     WINTER: "冬季",
@@ -133,66 +146,99 @@ export default async function Home() {
       </header>
 
       <p className="mt-2 text-sm text-gray-600">
-        共 {itemsWithTitles.length} 部動畫 （
+        共 {itemsWithTitles.length} 部動畫（
         {itemsWithTitles.filter((m) => m.isCurrentSeason).length} 部本季新番，
         {itemsWithTitles.filter((m) => !m.isCurrentSeason).length} 部長期播放）
       </p>
 
-      <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {itemsWithTitles.map((media) => {
-          const nextEpisode = media.nextAiringEpisode;
-          return (
-            <li key={media.id} className="rounded-2xl border p-4">
-              <div className="flex items-start gap-3">
-                {media.coverImage?.large && (
-                  <Image
-                    src={media.coverImage.large}
-                    alt={media.displayTitle}
-                    width={72}
-                    height={102}
-                    className="h-[102px] w-[72px] rounded object-cover"
-                  />
-                )}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="text-base font-semibold">
-                      {media.displayTitle}
-                    </div>
-                    {!media.isCurrentSeason && (
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                        長期播放
-                      </span>
-                    )}
-                  </div>
-                  {nextEpisode ? (
-                    <>
-                      <div className="text-sm text-gray-600">
-                        EP {nextEpisode.episode}
-                      </div>
-                      <div className="text-sm mt-1">
-                        下次播出：
-                        {formatLocal(new Date(nextEpisode.airingAt * 1000))}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-sm text-gray-500 mt-1">
-                      {media.status === "NOT_YET_RELEASED"
-                        ? "尚未播出"
-                        : "播出時間未定"}
-                    </div>
-                  )}
-                  <Link
-                    href={`/title/${media.id}`}
-                    className="mt-2 inline-block text-sm text-blue-600 hover:underline"
-                  >
-                    查看詳情
-                  </Link>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      <Tabs defaultValue="general" className="mt-6">
+        <TabsList>
+          <TabsTrigger value="general">
+            一般內容 ({generalMedia.length})
+          </TabsTrigger>
+          <TabsTrigger value="adult">
+            成人內容 ({adultMedia.length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="general" className="mt-4">
+          <MediaList media={generalMedia} />
+        </TabsContent>
+
+        <TabsContent value="adult" className="mt-4">
+          <MediaList media={adultMedia} />
+        </TabsContent>
+      </Tabs>
     </main>
+  );
+}
+
+function MediaList({
+  media,
+}: {
+  media: Array<
+    SeasonalMediaItem & {
+      displayTitle: string;
+      isCurrentSeason: boolean;
+      isAdult: boolean;
+    }
+  >;
+}) {
+  return (
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {media.map((mediaItem) => {
+        const nextEpisode = mediaItem.nextAiringEpisode;
+        return (
+          <li key={mediaItem.id} className="rounded-2xl border p-4">
+            <div className="flex items-start gap-3">
+              {mediaItem.coverImage?.large && (
+                <Image
+                  src={mediaItem.coverImage.large}
+                  alt={mediaItem.displayTitle}
+                  width={72}
+                  height={102}
+                  className="h-[102px] w-[72px] rounded object-cover"
+                />
+              )}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold">
+                    {mediaItem.displayTitle}
+                  </div>
+                  {!mediaItem.isCurrentSeason && (
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                      長期播放
+                    </span>
+                  )}
+                </div>
+                {nextEpisode ? (
+                  <>
+                    <div className="text-sm text-gray-600">
+                      EP {nextEpisode.episode}
+                    </div>
+                    <div className="text-sm mt-1">
+                      下次播出：
+                      {formatLocal(new Date(nextEpisode.airingAt * 1000))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-500 mt-1">
+                    {mediaItem.status === "NOT_YET_RELEASED"
+                      ? "尚未播出"
+                      : "播出時間未定"}
+                  </div>
+                )}
+                <Link
+                  href={`/title/${mediaItem.id}`}
+                  className="mt-2 inline-block text-sm text-blue-600 hover:underline"
+                >
+                  查看詳情
+                </Link>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

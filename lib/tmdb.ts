@@ -118,7 +118,16 @@ export async function searchTMDB(
   });
 
   if (!res.ok) {
-    throw new Error(`TMDB search error ${res.status}`);
+    let errorMessage = `TMDB search error ${res.status}`;
+    try {
+      const errorText = await res.text();
+      if (errorText) {
+        errorMessage += `: ${errorText}`;
+      }
+    } catch {
+      // Ignore error reading response body
+    }
+    throw new Error(errorMessage);
   }
 
   return res.json();
@@ -128,11 +137,12 @@ export async function searchTMDB(
  * Get alternative titles for a TMDB entry
  * @param tmdbId - The TMDB entry ID
  * @param mediaType - The media type ('movie', 'tv', or 'multi')
+ * @returns Alternative titles response, or null if resource not found (404)
  */
 export async function getTMDBAlternativeTitles(
   tmdbId: number,
   mediaType: "movie" | "tv" | "multi" = "tv"
-): Promise<TMDBAlternativeTitlesResponse> {
+): Promise<TMDBAlternativeTitlesResponse | null> {
   // Use 'tv' for anime series
   const endpoint = mediaType === "tv" ? "tv" : "movie";
   const url = new URL(
@@ -152,7 +162,20 @@ export async function getTMDBAlternativeTitles(
   });
 
   if (!res.ok) {
-    throw new Error(`TMDB alternative titles error ${res.status}`);
+    // 404 is expected if resource doesn't exist in TMDB
+    if (res.status === 404) {
+      return null;
+    }
+    let errorMessage = `TMDB alternative titles error ${res.status}`;
+    try {
+      const errorText = await res.text();
+      if (errorText) {
+        errorMessage += `: ${errorText}`;
+      }
+    } catch {
+      // Ignore error reading response body
+    }
+    throw new Error(errorMessage);
   }
 
   return res.json();
@@ -162,11 +185,12 @@ export async function getTMDBAlternativeTitles(
  * Get translations for a TMDB entry
  * @param tmdbId - The TMDB entry ID
  * @param mediaType - The media type ('movie', 'tv', or 'multi')
+ * @returns Translations response, or null if resource not found (404)
  */
 export async function getTMDBTranslations(
   tmdbId: number,
   mediaType: "movie" | "tv" | "multi" = "tv"
-): Promise<TMDBTranslationsResponse> {
+): Promise<TMDBTranslationsResponse | null> {
   // Use 'tv' for anime series
   const endpoint = mediaType === "tv" ? "tv" : "movie";
   const url = new URL(`${TMDB_ENDPOINT}/${endpoint}/${tmdbId}/translations`);
@@ -184,7 +208,20 @@ export async function getTMDBTranslations(
   });
 
   if (!res.ok) {
-    throw new Error(`TMDB translations error ${res.status}`);
+    // 404 is expected if resource doesn't exist in TMDB
+    if (res.status === 404) {
+      return null;
+    }
+    let errorMessage = `TMDB translations error ${res.status}`;
+    try {
+      const errorText = await res.text();
+      if (errorText) {
+        errorMessage += `: ${errorText}`;
+      }
+    } catch {
+      // Ignore error reading response body
+    }
+    throw new Error(errorMessage);
   }
 
   return res.json();
@@ -236,69 +273,67 @@ export async function findChineseTitleFromTMDB(
     // Try alternative titles first (for official alternative titles)
     const altTitles = await getTMDBAlternativeTitles(firstResult.id, mediaType);
 
-    // TV uses "results", Movie uses "titles"
-    const titles = altTitles.results || altTitles.titles;
+    if (altTitles) {
+      // TV uses "results", Movie uses "titles"
+      const titles = altTitles.results || altTitles.titles;
 
-    if (titles && Array.isArray(titles)) {
-      // Look for Chinese titles in alternative titles with priority:
-      // 1. Taiwan (Traditional)
-      // 2. Hong Kong (Traditional)
-      // 3. Mainland China (Simplified)
-      const twTitle = titles.find((title) => title.iso_3166_1 === "TW");
-      if (twTitle) return twTitle.title;
-
-      const hkTitle = titles.find((title) => title.iso_3166_1 === "HK");
-      if (hkTitle) return hkTitle.title;
-
-      const cnTitle = titles.find((title) => title.iso_3166_1 === "CN");
-      if (cnTitle) return cnTitle.title;
-    }
-
-    // Fallback to translations API (more comprehensive)
-    try {
-      const translations = await getTMDBTranslations(firstResult.id, mediaType);
-
-      if (
-        translations.translations &&
-        Array.isArray(translations.translations)
-      ) {
-        // Look for Chinese titles with priority:
+      if (titles && Array.isArray(titles)) {
+        // Look for Chinese titles in alternative titles with priority:
         // 1. Taiwan (Traditional)
         // 2. Hong Kong (Traditional)
         // 3. Mainland China (Simplified)
-        const twTranslation = translations.translations.find(
-          (t) => t.iso_3166_1 === "TW" && t.iso_639_1 === "zh"
-        );
-        if (twTranslation && twTranslation.data.name) {
-          return twTranslation.data.name;
-        }
-        if (twTranslation && twTranslation.data.title) {
-          return twTranslation.data.title;
-        }
+        const twTitle = titles.find((title) => title.iso_3166_1 === "TW");
+        if (twTitle) return twTitle.title;
 
-        const hkTranslation = translations.translations.find(
-          (t) => t.iso_3166_1 === "HK" && t.iso_639_1 === "zh"
-        );
-        if (hkTranslation && hkTranslation.data.name) {
-          return hkTranslation.data.name;
-        }
-        if (hkTranslation && hkTranslation.data.title) {
-          return hkTranslation.data.title;
-        }
+        const hkTitle = titles.find((title) => title.iso_3166_1 === "HK");
+        if (hkTitle) return hkTitle.title;
 
-        const cnTranslation = translations.translations.find(
-          (t) => t.iso_3166_1 === "CN" && t.iso_639_1 === "zh"
-        );
-        if (cnTranslation && cnTranslation.data.name) {
-          return cnTranslation.data.name;
-        }
-        if (cnTranslation && cnTranslation.data.title) {
-          return cnTranslation.data.title;
-        }
+        const cnTitle = titles.find((title) => title.iso_3166_1 === "CN");
+        if (cnTitle) return cnTitle.title;
       }
-    } catch {
-      // If translations fails, return null
-      console.log("Translations API failed");
+    }
+
+    // Fallback to translations API (more comprehensive)
+    const translations = await getTMDBTranslations(firstResult.id, mediaType);
+
+    if (
+      translations &&
+      translations.translations &&
+      Array.isArray(translations.translations)
+    ) {
+      // Look for Chinese titles with priority:
+      // 1. Taiwan (Traditional)
+      // 2. Hong Kong (Traditional)
+      // 3. Mainland China (Simplified)
+      const twTranslation = translations.translations.find(
+        (t) => t.iso_3166_1 === "TW" && t.iso_639_1 === "zh"
+      );
+      if (twTranslation && twTranslation.data.name) {
+        return twTranslation.data.name;
+      }
+      if (twTranslation && twTranslation.data.title) {
+        return twTranslation.data.title;
+      }
+
+      const hkTranslation = translations.translations.find(
+        (t) => t.iso_3166_1 === "HK" && t.iso_639_1 === "zh"
+      );
+      if (hkTranslation && hkTranslation.data.name) {
+        return hkTranslation.data.name;
+      }
+      if (hkTranslation && hkTranslation.data.title) {
+        return hkTranslation.data.title;
+      }
+
+      const cnTranslation = translations.translations.find(
+        (t) => t.iso_3166_1 === "CN" && t.iso_639_1 === "zh"
+      );
+      if (cnTranslation && cnTranslation.data.name) {
+        return cnTranslation.data.name;
+      }
+      if (cnTranslation && cnTranslation.data.title) {
+        return cnTranslation.data.title;
+      }
     }
 
     return null;
