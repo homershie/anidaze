@@ -71,6 +71,44 @@ export const AIRING_BY_MEDIA_QUERY = /* GraphQL */ `
   }
 `;
 
+export const MEDIA_DETAIL_QUERY = /* GraphQL */ `
+  query MediaDetail($mediaId: Int!) {
+    Media(id: $mediaId) {
+      id
+      title {
+        romaji
+        english
+        native
+      }
+      synonyms
+      description
+      coverImage {
+        large
+        extraLarge
+      }
+      bannerImage
+      season
+      seasonYear
+      episodes
+      status
+      format
+      genres
+      studios {
+        nodes {
+          name
+        }
+      }
+      averageScore
+      popularity
+      externalLinks {
+        id
+        site
+        url
+      }
+    }
+  }
+`;
+
 // Types for the Airing query response used across the app
 export type AiringItem = {
   id: number;
@@ -118,5 +156,41 @@ export type AiringByMediaResponse = {
       native: string | null;
     };
     synonyms: Array<string | null> | null;
+  } | null;
+};
+
+export type MediaDetailResponse = {
+  Media: {
+    id: number;
+    title: {
+      romaji: string | null;
+      english: string | null;
+      native: string | null;
+    };
+    synonyms: Array<string | null> | null;
+    description: string | null;
+    coverImage: {
+      large: string | null;
+      extraLarge: string | null;
+    } | null;
+    bannerImage: string | null;
+    season: string | null;
+    seasonYear: number | null;
+    episodes: number | null;
+    status: string | null;
+    format: string | null;
+    genres: Array<string | null> | null;
+    studios: {
+      nodes: Array<{
+        name: string;
+      }>;
+    } | null;
+    averageScore: number | null;
+    popularity: number | null;
+    externalLinks: Array<{
+      id: number;
+      site: string;
+      url: string;
+    } | null> | null;
   } | null;
 };
