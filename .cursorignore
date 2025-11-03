@@ -1,0 +1,5 @@
+# Re-include env example files for Cursor tools
+!/.env.example
+!**/.env.example
+
+
