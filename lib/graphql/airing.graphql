@@ -1,0 +1,26 @@
+query Airing($page: Int!, $perPage: Int!) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      currentPage
+      hasNextPage
+    }
+    airingSchedules(sort: TIME, notYetAired: true) {
+      id
+      episode
+      airingAt
+      media {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        coverImage {
+          large
+        }
+        season
+        seasonYear
+      }
+    }
+  }
+}

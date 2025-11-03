@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { anilist, AIRING_QUERY, type AiringResponse } from "@/lib/anilist";
+import {
+  anilist,
+  AIRING_QUERY,
+  type AiringResponse,
+  type AiringItem,
+} from "@/lib/anilist";
 import { buildICS, type IcsEvent } from "@/lib/ics";
 
 export async function GET() {
@@ -9,7 +14,7 @@ export async function GET() {
     { next: { revalidate: 60 * 60 * 6, tags: ["airing-ics"] } }
   );
 
-  const events: IcsEvent[] = data.Page.airingSchedules.map((a) => {
+  const events: IcsEvent[] = data.Page.airingSchedules.map((a: AiringItem) => {
     const start = new Date(a.airingAt * 1000); // AniList returns unix seconds
     const end = new Date(start.getTime() + 24 * 60 * 1000); // assume 24 min runtime
     const title =

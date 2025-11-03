@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { anilist, AIRING_QUERY, type AiringResponse } from "@/lib/anilist";
+import {
+  anilist,
+  AIRING_QUERY,
+  type AiringResponse,
+  type AiringItem,
+} from "@/lib/anilist";
 import { formatLocal } from "@/lib/time";
 
 export default async function Home() {
@@ -25,7 +30,7 @@ export default async function Home() {
       </header>
 
       <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {items.map((a) => {
+        {items.map((a: AiringItem) => {
           const title =
             a.media.title.romaji ||
             a.media.title.english ||
