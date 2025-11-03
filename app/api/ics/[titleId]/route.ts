@@ -5,12 +5,14 @@ import {
   type AiringByMediaResponse,
 } from "@/lib/anilist";
 import { buildICS, type IcsEvent } from "@/lib/ics";
+import { getBestTitleSync } from "@/lib/title";
 
 export async function GET(
   req: Request,
-  { params }: { params: { titleId: string } }
+  { params }: { params: Promise<{ titleId: string }> }
 ) {
-  const mediaId = Number(params.titleId);
+  const { titleId } = await params;
+  const mediaId = Number(titleId);
   if (!Number.isFinite(mediaId) || mediaId <= 0) {
     return NextResponse.json({ error: "Invalid titleId" }, { status: 400 });
   }
@@ -35,11 +37,12 @@ export async function GET(
       { status: 404 }
     );
   }
-  const title =
-    media.title.romaji ||
-    media.title.english ||
-    media.title.native ||
-    "Unknown";
+  const title = getBestTitleSync({
+    romaji: media.title.romaji,
+    english: media.title.english,
+    native: media.title.native,
+    synonyms: media.synonyms,
+  });
 
   // Prefer configured base URL; fallback to request origin
   const baseUrl =

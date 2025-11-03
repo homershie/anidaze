@@ -7,6 +7,7 @@ import {
   type AiringItem,
 } from "@/lib/anilist";
 import { formatLocal } from "@/lib/time";
+import { getBestTitleSync } from "@/lib/title";
 
 export default async function Home() {
   const data = await anilist<AiringResponse>(
@@ -31,11 +32,12 @@ export default async function Home() {
 
       <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {items.map((a: AiringItem) => {
-          const title =
-            a.media.title.romaji ||
-            a.media.title.english ||
-            a.media.title.native ||
-            "Unknown";
+          const title = getBestTitleSync({
+            romaji: a.media.title.romaji,
+            english: a.media.title.english,
+            native: a.media.title.native,
+            synonyms: a.media.synonyms,
+          });
           const dt = new Date(a.airingAt * 1000);
           return (
             <li

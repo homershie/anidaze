@@ -25,6 +25,8 @@ const config: CodegenConfig = {
           Date: "string",
           DateTime: "string",
           Json: "unknown",
+          CountryCode: "string",
+          FuzzyDateInt: "number",
         },
       },
     },

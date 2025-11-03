@@ -15,6 +15,7 @@ query Airing($page: Int!, $perPage: Int!) {
           english
           native
         }
+        synonyms
         coverImage {
           large
         }

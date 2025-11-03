@@ -6,6 +6,7 @@ import {
   type AiringItem,
 } from "@/lib/anilist";
 import { buildICS, type IcsEvent } from "@/lib/ics";
+import { getBestTitleSync } from "@/lib/title";
 
 export async function GET() {
   const data = await anilist<AiringResponse>(
@@ -17,11 +18,12 @@ export async function GET() {
   const events: IcsEvent[] = data.Page.airingSchedules.map((a: AiringItem) => {
     const start = new Date(a.airingAt * 1000); // AniList returns unix seconds
     const end = new Date(start.getTime() + 24 * 60 * 1000); // assume 24 min runtime
-    const title =
-      a.media.title.romaji ||
-      a.media.title.english ||
-      a.media.title.native ||
-      "Unknown";
+    const title = getBestTitleSync({
+      romaji: a.media.title.romaji,
+      english: a.media.title.english,
+      native: a.media.title.native,
+      synonyms: a.media.synonyms,
+    });
     return {
       uid: `${a.media.id}-ep${a.episode}@anidaze.app`,
       start,

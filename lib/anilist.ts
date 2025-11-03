@@ -38,6 +38,7 @@ export const AIRING_QUERY = /* GraphQL */ `
             english
             native
           }
+          synonyms
           coverImage {
             large
           }
@@ -65,6 +66,7 @@ export const AIRING_BY_MEDIA_QUERY = /* GraphQL */ `
         english
         native
       }
+      synonyms
     }
   }
 `;
@@ -81,6 +83,7 @@ export type AiringItem = {
       english: string | null;
       native: string | null;
     };
+    synonyms: Array<string | null> | null;
     coverImage?: {
       large?: string | null;
     } | null;
@@ -114,5 +117,6 @@ export type AiringByMediaResponse = {
       english: string | null;
       native: string | null;
     };
+    synonyms: Array<string | null> | null;
   } | null;
 };
