@@ -161,6 +161,7 @@ export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
           native
         }
         synonyms
+        countryOfOrigin
         coverImage {
           large
         }
@@ -197,6 +198,7 @@ export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
           native
         }
         synonyms
+        countryOfOrigin
         coverImage {
           large
         }
@@ -311,6 +313,7 @@ export type SeasonalMediaItem = {
     native: string | null;
   };
   synonyms: Array<string | null> | null;
+  countryOfOrigin: string | null;
   coverImage?: {
     large?: string | null;
   } | null;
