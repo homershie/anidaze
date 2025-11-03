@@ -135,9 +135,15 @@ export default async function Home({
 
   const allMedia = Array.from(mediaMap.values());
 
+  // 過濾掉沒有下次播出時間的作品（播出時間未定的作品）
+  const mediaWithAiringSchedule = allMedia.filter(
+    (media) =>
+      media.nextAiringEpisode !== null && media.nextAiringEpisode !== undefined
+  );
+
   // Fetch titles with TMDB Chinese support
   const itemsWithTitles = await Promise.all(
-    allMedia.map(async (media: SeasonalMediaItem) => {
+    mediaWithAiringSchedule.map(async (media: SeasonalMediaItem) => {
       const title = await getBestTitle({
         romaji: media.title.romaji,
         english: media.title.english,
