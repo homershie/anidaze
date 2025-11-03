@@ -27,3 +27,26 @@ export function formatLocal(
     hour12: false,
   }).format(dt);
 }
+
+/**
+ * 計算當前季節
+ * @returns { season: "WINTER" | "SPRING" | "SUMMER" | "FALL", year: number }
+ */
+export function getCurrentSeason() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // 1-12
+
+  let season: "WINTER" | "SPRING" | "SUMMER" | "FALL";
+  if (month >= 1 && month <= 3) {
+    season = "WINTER";
+  } else if (month >= 4 && month <= 6) {
+    season = "SPRING";
+  } else if (month >= 7 && month <= 9) {
+    season = "SUMMER";
+  } else {
+    season = "FALL";
+  }
+
+  return { season, year };
+}

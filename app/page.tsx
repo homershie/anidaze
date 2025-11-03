@@ -2,39 +2,128 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   anilist,
-  AIRING_QUERY,
-  type AiringResponse,
-  type AiringItem,
+  SEASONAL_MEDIA_QUERY,
+  ONGOING_MEDIA_QUERY,
+  type SeasonalMediaResponse,
+  type SeasonalMediaItem,
 } from "@/lib/anilist";
-import { formatLocal } from "@/lib/time";
+import { formatLocal, getCurrentSeason } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 
-export default async function Home() {
-  const data = await anilist<AiringResponse>(
-    AIRING_QUERY,
-    { page: 1, perPage: 30 },
-    { next: { revalidate: 60 * 60 * 6, tags: ["airing"] } }
-  );
+async function getAllSeasonalMedia(
+  season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
+  seasonYear: number
+): Promise<SeasonalMediaItem[]> {
+  const allMedia: SeasonalMediaItem[] = [];
+  let page = 1;
+  const perPage = 50;
+  let hasNextPage = true;
 
-  const items = data.Page.airingSchedules;
+  while (hasNextPage) {
+    const data = await anilist<SeasonalMediaResponse>(
+      SEASONAL_MEDIA_QUERY,
+      {
+        page,
+        perPage,
+        season,
+        seasonYear,
+        status: ["RELEASING", "NOT_YET_RELEASED"],
+      },
+      { next: { revalidate: 60 * 60 * 6, tags: ["seasonal"] } }
+    );
+
+    allMedia.push(...data.Page.media);
+    hasNextPage = data.Page.pageInfo.hasNextPage;
+    page++;
+  }
+
+  return allMedia;
+}
+
+async function getAllOngoingMedia(
+  season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
+  seasonYear: number
+): Promise<SeasonalMediaItem[]> {
+  const allMedia: SeasonalMediaItem[] = [];
+  let page = 1;
+  const perPage = 50;
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const data = await anilist<SeasonalMediaResponse>(
+      ONGOING_MEDIA_QUERY,
+      {
+        page,
+        perPage,
+        status: ["RELEASING"],
+      },
+      { next: { revalidate: 60 * 60 * 6, tags: ["ongoing"] } }
+    );
+
+    // 過濾掉屬於當前季節的作品（避免重複）
+    const filtered = data.Page.media.filter(
+      (media) => !(media.season === season && media.seasonYear === seasonYear)
+    );
+
+    allMedia.push(...filtered);
+    hasNextPage = data.Page.pageInfo.hasNextPage;
+    page++;
+  }
+
+  return allMedia;
+}
+
+export default async function Home() {
+  const { season, year } = getCurrentSeason();
+
+  // 並行獲取季節作品和長期播放作品
+  const [seasonalMedia, ongoingMedia] = await Promise.all([
+    getAllSeasonalMedia(season, year),
+    getAllOngoingMedia(season, year),
+  ]);
+
+  // 合併並去重（以 media.id 為準）
+  const mediaMap = new Map<number, SeasonalMediaItem>();
+  seasonalMedia.forEach((media) => mediaMap.set(media.id, media));
+  ongoingMedia.forEach((media) => {
+    if (!mediaMap.has(media.id)) {
+      mediaMap.set(media.id, media);
+    }
+  });
+
+  const allMedia = Array.from(mediaMap.values());
 
   // Fetch titles with TMDB Chinese support
   const itemsWithTitles = await Promise.all(
-    items.map(async (a: AiringItem) => {
+    allMedia.map(async (media: SeasonalMediaItem) => {
       const title = await getBestTitle({
-        romaji: a.media.title.romaji,
-        english: a.media.title.english,
-        native: a.media.title.native,
-        synonyms: a.media.synonyms,
+        romaji: media.title.romaji,
+        english: media.title.english,
+        native: media.title.native,
+        synonyms: media.synonyms,
       });
-      return { ...a, displayTitle: title };
+
+      // 判斷是否為當前季節作品
+      const isCurrentSeason =
+        media.season === season && media.seasonYear === year;
+
+      return { ...media, displayTitle: title, isCurrentSeason };
     })
   );
+
+  const seasonNames: Record<"WINTER" | "SPRING" | "SUMMER" | "FALL", string> = {
+    WINTER: "冬季",
+    SPRING: "春季",
+    SUMMER: "夏季",
+    FALL: "秋季",
+  };
 
   return (
     <main className="mx-auto max-w-4xl p-6">
       <header className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">AniDaze — 本週播放表</h1>
+        <h1 className="text-2xl font-bold">
+          AniDaze — {year}年{seasonNames[season]}動畫
+        </h1>
         <a
           className="rounded bg-black px-3 py-1.5 text-white text-sm"
           href="/api/ics/sample"
@@ -43,32 +132,57 @@ export default async function Home() {
         </a>
       </header>
 
+      <p className="mt-2 text-sm text-gray-600">
+        共 {itemsWithTitles.length} 部動畫 （
+        {itemsWithTitles.filter((m) => m.isCurrentSeason).length} 部本季新番，
+        {itemsWithTitles.filter((m) => !m.isCurrentSeason).length} 部長期播放）
+      </p>
+
       <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {itemsWithTitles.map((a) => {
-          const dt = new Date(a.airingAt * 1000);
+        {itemsWithTitles.map((media) => {
+          const nextEpisode = media.nextAiringEpisode;
           return (
-            <li
-              key={`${a.media.id}-${a.episode}`}
-              className="rounded-2xl border p-4"
-            >
+            <li key={media.id} className="rounded-2xl border p-4">
               <div className="flex items-start gap-3">
-                {a.media.coverImage?.large && (
+                {media.coverImage?.large && (
                   <Image
-                    src={a.media.coverImage.large}
-                    alt={a.displayTitle}
+                    src={media.coverImage.large}
+                    alt={media.displayTitle}
                     width={72}
                     height={102}
                     className="h-[102px] w-[72px] rounded object-cover"
                   />
                 )}
                 <div className="flex-1">
-                  <div className="text-base font-semibold">
-                    {a.displayTitle}
+                  <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold">
+                      {media.displayTitle}
+                    </div>
+                    {!media.isCurrentSeason && (
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                        長期播放
+                      </span>
+                    )}
                   </div>
-                  <div className="text-sm text-gray-600">EP {a.episode}</div>
-                  <div className="text-sm mt-1">播出：{formatLocal(dt)}</div>
+                  {nextEpisode ? (
+                    <>
+                      <div className="text-sm text-gray-600">
+                        EP {nextEpisode.episode}
+                      </div>
+                      <div className="text-sm mt-1">
+                        下次播出：
+                        {formatLocal(new Date(nextEpisode.airingAt * 1000))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-sm text-gray-500 mt-1">
+                      {media.status === "NOT_YET_RELEASED"
+                        ? "尚未播出"
+                        : "播出時間未定"}
+                    </div>
+                  )}
                   <Link
-                    href={`/title/${a.media.id}`}
+                    href={`/title/${media.id}`}
                     className="mt-2 inline-block text-sm text-blue-600 hover:underline"
                   >
                     查看詳情

@@ -133,6 +133,80 @@ export const MEDIA_DETAIL_QUERY = /* GraphQL */ `
   }
 `;
 
+export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
+  query SeasonalMedia(
+    $page: Int!
+    $perPage: Int!
+    $season: MediaSeason!
+    $seasonYear: Int!
+    $status: [MediaStatus!]
+  ) {
+    Page(page: $page, perPage: $perPage) {
+      pageInfo {
+        currentPage
+        hasNextPage
+        total
+      }
+      media(
+        season: $season
+        seasonYear: $seasonYear
+        status_in: $status
+        type: ANIME
+        sort: POPULARITY_DESC
+      ) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        synonyms
+        coverImage {
+          large
+        }
+        season
+        seasonYear
+        status
+        nextAiringEpisode {
+          episode
+          airingAt
+        }
+      }
+    }
+  }
+`;
+
+export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
+  query OngoingMedia($page: Int!, $perPage: Int!, $status: [MediaStatus!]) {
+    Page(page: $page, perPage: $perPage) {
+      pageInfo {
+        currentPage
+        hasNextPage
+        total
+      }
+      media(status_in: $status, type: ANIME, sort: POPULARITY_DESC) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        synonyms
+        coverImage {
+          large
+        }
+        season
+        seasonYear
+        status
+        nextAiringEpisode {
+          episode
+          airingAt
+        }
+      }
+    }
+  }
+`;
+
 // Types for the Airing query response used across the app
 export type AiringItem = {
   id: number;
@@ -217,4 +291,35 @@ export type MediaDetailResponse = {
       url: string;
     } | null> | null;
   } | null;
+};
+
+export type SeasonalMediaItem = {
+  id: number;
+  title: {
+    romaji: string | null;
+    english: string | null;
+    native: string | null;
+  };
+  synonyms: Array<string | null> | null;
+  coverImage?: {
+    large?: string | null;
+  } | null;
+  season: string | null;
+  seasonYear: number | null;
+  status: string | null;
+  nextAiringEpisode?: {
+    episode: number;
+    airingAt: number;
+  } | null;
+};
+
+export type SeasonalMediaResponse = {
+  Page: {
+    pageInfo: {
+      currentPage: number;
+      hasNextPage: boolean;
+      total?: number | null;
+    };
+    media: SeasonalMediaItem[];
+  };
 };
