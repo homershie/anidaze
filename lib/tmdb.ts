@@ -228,10 +228,10 @@ export async function getTMDBTranslations(
 }
 
 /**
- * Find Chinese title from TMDB by searching with native (Japanese) or English title
+ * Find Traditional Chinese title from TMDB by searching with native (Japanese) or English title
  * @param nativeTitle - Japanese title
  * @param englishTitle - English title
- * @returns Chinese title if found, null otherwise
+ * @returns Traditional Chinese title if found, null otherwise
  */
 export async function findChineseTitleFromTMDB(
   nativeTitle: string | null,
@@ -278,18 +278,14 @@ export async function findChineseTitleFromTMDB(
       const titles = altTitles.results || altTitles.titles;
 
       if (titles && Array.isArray(titles)) {
-        // Look for Chinese titles in alternative titles with priority:
+        // Look for Traditional Chinese titles in alternative titles with priority:
         // 1. Taiwan (Traditional)
         // 2. Hong Kong (Traditional)
-        // 3. Mainland China (Simplified)
         const twTitle = titles.find((title) => title.iso_3166_1 === "TW");
         if (twTitle) return twTitle.title;
 
         const hkTitle = titles.find((title) => title.iso_3166_1 === "HK");
         if (hkTitle) return hkTitle.title;
-
-        const cnTitle = titles.find((title) => title.iso_3166_1 === "CN");
-        if (cnTitle) return cnTitle.title;
       }
     }
 
@@ -301,10 +297,9 @@ export async function findChineseTitleFromTMDB(
       translations.translations &&
       Array.isArray(translations.translations)
     ) {
-      // Look for Chinese titles with priority:
+      // Look for Traditional Chinese titles with priority:
       // 1. Taiwan (Traditional)
       // 2. Hong Kong (Traditional)
-      // 3. Mainland China (Simplified)
       const twTranslation = translations.translations.find(
         (t) => t.iso_3166_1 === "TW" && t.iso_639_1 === "zh"
       );
@@ -324,21 +319,11 @@ export async function findChineseTitleFromTMDB(
       if (hkTranslation && hkTranslation.data.title) {
         return hkTranslation.data.title;
       }
-
-      const cnTranslation = translations.translations.find(
-        (t) => t.iso_3166_1 === "CN" && t.iso_639_1 === "zh"
-      );
-      if (cnTranslation && cnTranslation.data.name) {
-        return cnTranslation.data.name;
-      }
-      if (cnTranslation && cnTranslation.data.title) {
-        return cnTranslation.data.title;
-      }
     }
 
     return null;
   } catch (error) {
-    console.error("Error fetching Chinese title from TMDB:", error);
+    console.error("Error fetching Traditional Chinese title from TMDB:", error);
     return null;
   }
 }

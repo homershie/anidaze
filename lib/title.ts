@@ -9,14 +9,14 @@ export type TitleInfo = {
 
 /**
  * Get the best available title based on priority:
- * 1. Chinese from TMDB (if TMDB_API_KEY is available)
+ * 1. Traditional Chinese from TMDB (if TMDB_API_KEY is available)
  * 2. synonyms (from AniList)
  * 3. native (Japanese)
  * 4. romaji
  * 5. english
  */
 export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
-  // Priority 1: Try to get Chinese from TMDB
+  // Priority 1: Try to get Traditional Chinese from TMDB
   const chineseTitle = await findChineseTitleFromTMDB(
     titleInfo.native,
     titleInfo.english
@@ -25,7 +25,7 @@ export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
     return chineseTitle;
   }
 
-  // Priority 2: Check synonyms for Chinese titles
+  // Priority 2: Check synonyms for Traditional Chinese titles
   if (titleInfo.synonyms) {
     const chineseSynonym = titleInfo.synonyms.find((s) => s && isChinese(s));
     if (chineseSynonym) {
@@ -59,7 +59,7 @@ export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
 export function getBestTitleSync(titleInfo: TitleInfo): string {
   let result = "";
 
-  // Priority 1: Check synonyms for Chinese titles
+  // Priority 1: Check synonyms for Traditional Chinese titles
   if (titleInfo.synonyms) {
     const chineseSynonym = titleInfo.synonyms.find((s) => s && isChinese(s));
     if (chineseSynonym) {
@@ -99,7 +99,7 @@ function isChinese(str: string): boolean {
 }
 
 /**
- * Get Chinese title from TMDB if available
+ * Get Traditional Chinese title from TMDB if available
  * This is meant to be called separately (e.g., with React Query on client side)
  */
 export async function getChineseTitleFromTMDB(
@@ -109,7 +109,7 @@ export async function getChineseTitleFromTMDB(
   try {
     return await findChineseTitleFromTMDB(native, english);
   } catch (error) {
-    console.error("Error fetching Chinese title from TMDB:", error);
+    console.error("Error fetching Traditional Chinese title from TMDB:", error);
     return null;
   }
 }
