@@ -27,6 +27,50 @@ export type TMDBSearchResponse = {
 };
 
 /**
+ * Get TMDB authentication headers
+ * Supports both Bearer Token (preferred) and API Key methods
+ */
+function getTMDBAuthHeaders(): HeadersInit {
+  const accessToken = process.env.TMDB_ACCESS_TOKEN;
+  const apiKey = process.env.TMDB_API_KEY;
+
+  // Prefer Bearer token if available
+  if (accessToken) {
+    return {
+      Authorization: `Bearer ${accessToken}`,
+    };
+  }
+
+  // Fallback to API key method
+  if (apiKey) {
+    return {};
+  }
+
+  throw new Error("Either TMDB_ACCESS_TOKEN or TMDB_API_KEY must be set");
+}
+
+/**
+ * Get TMDB authentication query parameters
+ * Only used if Bearer token is not available
+ */
+function getTMDBAuthParams(): Record<string, string> | null {
+  const accessToken = process.env.TMDB_ACCESS_TOKEN;
+  const apiKey = process.env.TMDB_API_KEY;
+
+  // Bearer token doesn't need query params
+  if (accessToken) {
+    return null;
+  }
+
+  // Use API key as query parameter
+  if (apiKey) {
+    return { api_key: apiKey };
+  }
+
+  return null;
+}
+
+/**
  * Search for anime in TMDB by title
  * @param title - The title to search for
  * @param language - Language code (e.g., 'ja-JP', 'en-US')
@@ -35,17 +79,20 @@ export async function searchTMDB(
   title: string,
   language: string = "en-US"
 ): Promise<TMDBSearchResponse> {
-  const apiKey = process.env.TMDB_API_KEY;
-  if (!apiKey) {
-    throw new Error("TMDB_API_KEY is not set");
+  const url = new URL(`${TMDB_ENDPOINT}/search/multi`);
+
+  // Add authentication query params if using API key
+  const authParams = getTMDBAuthParams();
+  if (authParams) {
+    url.searchParams.set("api_key", authParams.api_key);
   }
 
-  const url = new URL(`${TMDB_ENDPOINT}/search/multi`);
-  url.searchParams.set("api_key", apiKey);
   url.searchParams.set("query", title);
   url.searchParams.set("language", language);
 
+  const headers = getTMDBAuthHeaders();
   const res = await fetch(url.toString(), {
+    headers,
     next: { revalidate: 60 * 60 * 24 }, // Cache for 24 hours
   });
 
@@ -65,19 +112,21 @@ export async function getTMDBAlternativeTitles(
   tmdbId: number,
   mediaType: "movie" | "tv" | "multi" = "tv"
 ): Promise<TMDBAlternativeTitlesResponse> {
-  const apiKey = process.env.TMDB_API_KEY;
-  if (!apiKey) {
-    throw new Error("TMDB_API_KEY is not set");
-  }
-
   // Use 'tv' for anime series
   const endpoint = mediaType === "tv" ? "tv" : "movie";
   const url = new URL(
     `${TMDB_ENDPOINT}/${endpoint}/${tmdbId}/alternative_titles`
   );
-  url.searchParams.set("api_key", apiKey);
 
+  // Add authentication query params if using API key
+  const authParams = getTMDBAuthParams();
+  if (authParams) {
+    url.searchParams.set("api_key", authParams.api_key);
+  }
+
+  const headers = getTMDBAuthHeaders();
   const res = await fetch(url.toString(), {
+    headers,
     next: { revalidate: 60 * 60 * 24 }, // Cache for 24 hours
   });
 
@@ -98,7 +147,8 @@ export async function findChineseTitleFromTMDB(
   nativeTitle: string | null,
   englishTitle: string | null
 ): Promise<string | null> {
-  if (!process.env.TMDB_API_KEY) {
+  // Check if either auth method is configured
+  if (!process.env.TMDB_ACCESS_TOKEN && !process.env.TMDB_API_KEY) {
     return null;
   }
 
