@@ -183,18 +183,18 @@ export async function findChineseTitleFromTMDB(
     // Get alternative titles
     const altTitles = await getTMDBAlternativeTitles(firstResult.id, mediaType);
 
-    // Look for Chinese titles
-    const chineseTitles = altTitles.titles.filter(
-      (title) =>
-        title.iso_3166_1 === "CN" || // Mainland China (Simplified)
-        title.iso_3166_1 === "HK" || // Hong Kong (Traditional)
-        title.iso_3166_1 === "TW" // Taiwan (Traditional)
-    );
+    // Look for Chinese titles with priority:
+    // 1. Taiwan (Traditional)
+    // 2. Hong Kong (Traditional)
+    // 3. Mainland China (Simplified)
+    const twTitle = altTitles.titles.find((title) => title.iso_3166_1 === "TW");
+    if (twTitle) return twTitle.title;
 
-    // Return the first Chinese title found
-    if (chineseTitles.length > 0) {
-      return chineseTitles[0].title;
-    }
+    const hkTitle = altTitles.titles.find((title) => title.iso_3166_1 === "HK");
+    if (hkTitle) return hkTitle.title;
+
+    const cnTitle = altTitles.titles.find((title) => title.iso_3166_1 === "CN");
+    if (cnTitle) return cnTitle.title;
 
     return null;
   } catch (error) {
