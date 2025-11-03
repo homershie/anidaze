@@ -7,7 +7,12 @@ import {
   type SeasonalMediaResponse,
   type SeasonalMediaItem,
 } from "@/lib/anilist";
-import { formatLocal, getCurrentSeason } from "@/lib/time";
+import {
+  formatLocal,
+  getCurrentSeason,
+  getDayOfWeek,
+  getDayOfWeekName,
+} from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CountrySelect } from "@/components/country-select";
@@ -279,61 +284,105 @@ function MediaList({
     }
   >;
 }) {
+  // 按星期分組作品
+  // 0: 週日, 1: 週一, ..., 6: 週六, 7: 未定
+  const groupedByDay: Record<number, typeof media> = {
+    0: [],
+    1: [],
+    2: [],
+    3: [],
+    4: [],
+    5: [],
+    6: [],
+    7: [], // 未定
+  };
+
+  media.forEach((mediaItem) => {
+    const nextEpisode = mediaItem.nextAiringEpisode;
+    if (nextEpisode?.airingAt) {
+      const dayOfWeek = getDayOfWeek(nextEpisode.airingAt);
+      groupedByDay[dayOfWeek].push(mediaItem);
+    } else {
+      groupedByDay[7].push(mediaItem);
+    }
+  });
+
+  // 星期順序：週日、週一、...、週六、未定
+  const dayOrder = [0, 1, 2, 3, 4, 5, 6, 7];
+
   return (
-    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {media.map((mediaItem) => {
-        const nextEpisode = mediaItem.nextAiringEpisode;
+    <div className="space-y-6">
+      {dayOrder.map((day) => {
+        const dayMedia = groupedByDay[day];
+        if (dayMedia.length === 0) return null;
+
+        const dayName = day === 7 ? "未定" : getDayOfWeekName(day);
+
         return (
-          <li key={mediaItem.id} className="rounded-2xl border p-4">
-            <div className="flex items-start gap-3">
-              {mediaItem.coverImage?.large && (
-                <Image
-                  src={mediaItem.coverImage.large}
-                  alt={mediaItem.displayTitle}
-                  width={72}
-                  height={102}
-                  className="h-[102px] w-[72px] rounded object-cover"
-                />
-              )}
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <div className="text-base font-semibold">
-                    {mediaItem.displayTitle}
-                  </div>
-                  {!mediaItem.isCurrentSeason && (
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                      長期播放
-                    </span>
-                  )}
-                </div>
-                {nextEpisode ? (
-                  <>
-                    <div className="text-sm text-gray-600">
-                      EP {nextEpisode.episode}
+          <div key={day} className="space-y-3">
+            <h3 className="text-lg font-semibold">
+              {dayName} ({dayMedia.length})
+            </h3>
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {dayMedia.map((mediaItem) => {
+                const nextEpisode = mediaItem.nextAiringEpisode;
+                return (
+                  <li key={mediaItem.id} className="rounded-2xl border p-4">
+                    <div className="flex items-start gap-3">
+                      {mediaItem.coverImage?.large && (
+                        <Image
+                          src={mediaItem.coverImage.large}
+                          alt={mediaItem.displayTitle}
+                          width={72}
+                          height={102}
+                          className="h-[102px] w-[72px] rounded object-cover"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="text-base font-semibold">
+                            {mediaItem.displayTitle}
+                          </div>
+                          {!mediaItem.isCurrentSeason && (
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                              長期播放
+                            </span>
+                          )}
+                        </div>
+                        {nextEpisode ? (
+                          <>
+                            <div className="text-sm text-gray-600">
+                              EP {nextEpisode.episode}
+                            </div>
+                            <div className="text-sm mt-1">
+                              下次播出：
+                              {formatLocal(
+                                new Date(nextEpisode.airingAt * 1000)
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-sm text-gray-500 mt-1">
+                            {mediaItem.status === "NOT_YET_RELEASED"
+                              ? "尚未播出"
+                              : "播出時間未定"}
+                          </div>
+                        )}
+                        <Link
+                          href={`/title/${mediaItem.id}`}
+                          className="mt-2 inline-block text-sm text-blue-600 hover:underline"
+                        >
+                          查看詳情
+                        </Link>
+                      </div>
                     </div>
-                    <div className="text-sm mt-1">
-                      下次播出：
-                      {formatLocal(new Date(nextEpisode.airingAt * 1000))}
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-sm text-gray-500 mt-1">
-                    {mediaItem.status === "NOT_YET_RELEASED"
-                      ? "尚未播出"
-                      : "播出時間未定"}
-                  </div>
-                )}
-                <Link
-                  href={`/title/${mediaItem.id}`}
-                  className="mt-2 inline-block text-sm text-blue-600 hover:underline"
-                >
-                  查看詳情
-                </Link>
-              </div>
-            </div>
-          </li>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 }
