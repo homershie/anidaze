@@ -127,5 +127,11 @@
   "ics": {
     "recurringDescription": "Anime airing time (weekly recurring)",
     "link": "Link"
+  },
+  "theme": {
+    "label": "Select theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   }
 }

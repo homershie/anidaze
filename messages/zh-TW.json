@@ -127,5 +127,11 @@
   "ics": {
     "recurringDescription": "動畫播出時間（每週重複）",
     "link": "連結"
+  },
+  "theme": {
+    "label": "選擇主題",
+    "light": "淺色模式",
+    "dark": "深色模式",
+    "system": "跟隨系統"
   }
 }

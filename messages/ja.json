@@ -127,5 +127,11 @@
   "ics": {
     "recurringDescription": "アニメ放送時間（毎週繰り返し）",
     "link": "リンク"
+  },
+  "theme": {
+    "label": "テーマを選択",
+    "light": "ライト",
+    "dark": "ダーク",
+    "system": "システム"
   }
 }

@@ -12,6 +12,7 @@ import { getBestTitle } from "@/lib/title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CountrySelect } from "@/components/country-select";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getTranslations, getLocale } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -210,6 +211,7 @@ export default async function Home({
           {t("app.title", { year, season: seasonNames[season] })}
         </h1>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <LocaleSwitcher />
           <CountrySelect
             selectedCountry={selectedCountry || ""}
