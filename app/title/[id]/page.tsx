@@ -5,7 +5,7 @@ import {
   MEDIA_DETAIL_QUERY,
   type MediaDetailResponse,
 } from "@/lib/anilist";
-import { getBestTitleSync } from "@/lib/title";
+import { getBestTitle } from "@/lib/title";
 import { getJikanMetadata, extractMALIdFromAniList } from "@/lib/jikan";
 
 export default async function TitlePage({
@@ -40,8 +40,8 @@ export default async function TitlePage({
     );
   }
 
-  // Get title
-  const title = getBestTitleSync({
+  // Get title with TMDB Chinese support
+  const title = await getBestTitle({
     romaji: media.title.romaji,
     english: media.title.english,
     native: media.title.native,

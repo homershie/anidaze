@@ -7,7 +7,7 @@ import {
   type AiringItem,
 } from "@/lib/anilist";
 import { formatLocal } from "@/lib/time";
-import { getBestTitleSync } from "@/lib/title";
+import { getBestTitle } from "@/lib/title";
 
 export default async function Home() {
   const data = await anilist<AiringResponse>(
@@ -17,6 +17,19 @@ export default async function Home() {
   );
 
   const items = data.Page.airingSchedules;
+
+  // Fetch titles with TMDB Chinese support
+  const itemsWithTitles = await Promise.all(
+    items.map(async (a: AiringItem) => {
+      const title = await getBestTitle({
+        romaji: a.media.title.romaji,
+        english: a.media.title.english,
+        native: a.media.title.native,
+        synonyms: a.media.synonyms,
+      });
+      return { ...a, displayTitle: title };
+    })
+  );
 
   return (
     <main className="mx-auto max-w-4xl p-6">
@@ -31,13 +44,7 @@ export default async function Home() {
       </header>
 
       <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {items.map((a: AiringItem) => {
-          const title = getBestTitleSync({
-            romaji: a.media.title.romaji,
-            english: a.media.title.english,
-            native: a.media.title.native,
-            synonyms: a.media.synonyms,
-          });
+        {itemsWithTitles.map((a) => {
           const dt = new Date(a.airingAt * 1000);
           return (
             <li
@@ -48,14 +55,16 @@ export default async function Home() {
                 {a.media.coverImage?.large && (
                   <Image
                     src={a.media.coverImage.large}
-                    alt={title}
+                    alt={a.displayTitle}
                     width={72}
                     height={102}
                     className="h-[102px] w-[72px] rounded object-cover"
                   />
                 )}
                 <div className="flex-1">
-                  <div className="text-base font-semibold">{title}</div>
+                  <div className="text-base font-semibold">
+                    {a.displayTitle}
+                  </div>
                   <div className="text-sm text-gray-600">EP {a.episode}</div>
                   <div className="text-sm mt-1">播出：{formatLocal(dt)}</div>
                   <Link

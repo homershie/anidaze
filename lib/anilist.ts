@@ -5,7 +5,6 @@ export async function anilist<T>(
   variables?: Record<string, unknown>,
   init?: RequestInit
 ) {
-  "use cache";
   const res = await fetch(ANILIST_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

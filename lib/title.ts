@@ -16,36 +16,36 @@ export type TitleInfo = {
  * 5. english
  */
 export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
-  let result = "";
+  // Priority 1: Try to get Chinese from TMDB
+  const chineseTitle = await findChineseTitleFromTMDB(
+    titleInfo.native,
+    titleInfo.english
+  );
+  if (chineseTitle) {
+    return chineseTitle;
+  }
 
-  // Priority 1: Try to get Chinese from TMDB (async, but we'll call it optimistically)
-  // For now, we'll skip TMDB to avoid blocking, but could be implemented with React Query in the future
-  
   // Priority 2: Check synonyms for Chinese titles
   if (titleInfo.synonyms) {
     const chineseSynonym = titleInfo.synonyms.find((s) => s && isChinese(s));
     if (chineseSynonym) {
-      result = chineseSynonym;
-      return result;
+      return chineseSynonym;
     }
   }
 
   // Priority 3: native (Japanese)
   if (titleInfo.native) {
-    result = titleInfo.native;
-    return result;
+    return titleInfo.native;
   }
 
   // Priority 4: romaji
   if (titleInfo.romaji) {
-    result = titleInfo.romaji;
-    return result;
+    return titleInfo.romaji;
   }
 
   // Priority 5: english
   if (titleInfo.english) {
-    result = titleInfo.english;
-    return result;
+    return titleInfo.english;
   }
 
   // Fallback

@@ -5,7 +5,7 @@ import {
   type AiringByMediaResponse,
 } from "@/lib/anilist";
 import { buildICS, type IcsEvent } from "@/lib/ics";
-import { getBestTitleSync } from "@/lib/title";
+import { getBestTitle } from "@/lib/title";
 
 export async function GET(
   req: Request,
@@ -37,7 +37,7 @@ export async function GET(
       { status: 404 }
     );
   }
-  const title = getBestTitleSync({
+  const title = await getBestTitle({
     romaji: media.title.romaji,
     english: media.title.english,
     native: media.title.native,

@@ -183,6 +183,11 @@ export async function findChineseTitleFromTMDB(
     // Get alternative titles
     const altTitles = await getTMDBAlternativeTitles(firstResult.id, mediaType);
 
+    // Check if titles exists and is an array
+    if (!altTitles.titles || !Array.isArray(altTitles.titles)) {
+      return null;
+    }
+
     // Look for Chinese titles with priority:
     // 1. Taiwan (Traditional)
     // 2. Hong Kong (Traditional)
