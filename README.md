@@ -79,6 +79,16 @@ npm run dev
 
 可以從編輯 `app/page.tsx` 開始，儲存後頁面會自動更新。
 
+### API 設定（API Setup）
+
+部分功能需要額外的 API 設定。請參考以下文件：
+
+- **TMDB API**：用於中文標題翻譯（[設定說明](docs/tmdb-setup.md)）
+- **Wikipedia API**：作為 TMDB 的備援來源（[使用說明](docs/wikipedia-setup.md)）
+- **Jikan API**：用於 MyAnimeList 元資料（[設定說明](docs/jikan-setup.md)）
+
+詳見 `docs/` 目錄中的個別設定文件。
+
 ---
 
 ## 備註（Notes）

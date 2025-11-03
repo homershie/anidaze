@@ -1,4 +1,5 @@
 import { findChineseTitleFromTMDB } from "./tmdb";
+import { findChineseTitleFromWikipedia } from "./wikipedia";
 
 export type TitleInfo = {
   romaji: string | null;
@@ -10,10 +11,11 @@ export type TitleInfo = {
 /**
  * Get the best available title based on priority:
  * 1. Traditional Chinese from TMDB (if TMDB_API_KEY is available)
- * 2. synonyms (from AniList)
- * 3. native (Japanese)
- * 4. romaji
- * 5. english
+ * 2. Traditional Chinese from Wikipedia (if TMDB fails)
+ * 3. synonyms (from AniList)
+ * 4. native (Japanese)
+ * 5. romaji
+ * 6. english
  */
 export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
   // Priority 1: Try to get Traditional Chinese from TMDB
@@ -25,7 +27,24 @@ export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
     return chineseTitle;
   }
 
-  // Priority 2: Check synonyms for Traditional Chinese titles
+  // Priority 2: Try to get Traditional Chinese from Wikipedia as fallback
+  // Try multiple title sources to improve accuracy for ambiguous titles
+  const titleCandidates = [
+    titleInfo.romaji,    // Most anime-specific, less ambiguous
+    titleInfo.native,    // Japanese title, very specific
+    titleInfo.english,   // English title, might be ambiguous
+  ].filter((t) => t !== null) as string[];
+
+  for (const candidate of titleCandidates) {
+    if (candidate) {
+      const wikipediaTitle = await findChineseTitleFromWikipedia(candidate);
+      if (wikipediaTitle) {
+        return wikipediaTitle;
+      }
+    }
+  }
+
+  // Priority 3: Check synonyms for Traditional Chinese titles
   if (titleInfo.synonyms) {
     const chineseSynonym = titleInfo.synonyms.find((s) => s && isChinese(s));
     if (chineseSynonym) {
@@ -33,17 +52,17 @@ export async function getBestTitle(titleInfo: TitleInfo): Promise<string> {
     }
   }
 
-  // Priority 3: native (Japanese)
+  // Priority 4: native (Japanese)
   if (titleInfo.native) {
     return titleInfo.native;
   }
 
-  // Priority 4: romaji
+  // Priority 5: romaji
   if (titleInfo.romaji) {
     return titleInfo.romaji;
   }
 
-  // Priority 5: english
+  // Priority 6: english
   if (titleInfo.english) {
     return titleInfo.english;
   }
