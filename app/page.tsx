@@ -319,14 +319,14 @@ async function MediaList({
                             {mediaItem.displayTitle}
                           </div>
                           {!mediaItem.isCurrentSeason && (
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded dark:text-gray-300 dark:bg-gray-800">
                               {t("media.ongoing")}
                             </span>
                           )}
                         </div>
                         {nextEpisode ? (
                           <>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
                               {t("media.episode", {
                                 episode: nextEpisode.episode,
                               })}

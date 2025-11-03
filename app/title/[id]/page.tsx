@@ -118,11 +118,13 @@ export default async function TitlePage({
               {/* AniList Score */}
               {media.averageScore !== null && (
                 <div>
-                  <div className="text-sm text-gray-600">AniList</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    AniList
+                  </div>
                   <div className="text-2xl font-bold">
                     {(media.averageScore / 10).toFixed(1)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-300">
                     {media.popularity &&
                       `${media.popularity.toLocaleString()} ${t(
                         "title.users"
@@ -134,11 +136,13 @@ export default async function TitlePage({
               {/* MyAnimeList Score (from Jikan) */}
               {jikanData && jikanData.score !== null && (
                 <div>
-                  <div className="text-sm text-gray-600">MyAnimeList</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    MyAnimeList
+                  </div>
                   <div className="text-2xl font-bold">
                     {jikanData.score.toFixed(1)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-300">
                     {jikanData.scored_by &&
                       `${jikanData.scored_by.toLocaleString()} ${t(
                         "title.ratings"
@@ -150,9 +154,11 @@ export default async function TitlePage({
               {/* MAL Rank */}
               {jikanData?.rank && (
                 <div>
-                  <div className="text-sm text-gray-600">{t("title.rank")}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {t("title.rank")}
+                  </div>
                   <div className="text-2xl font-bold">#{jikanData.rank}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-300">
                     {t("title.siteRank")}
                   </div>
                 </div>
@@ -166,7 +172,9 @@ export default async function TitlePage({
             <div className="grid grid-cols-2 gap-4 text-sm">
               {media.format && (
                 <div>
-                  <span className="text-gray-600">{t("title.type")}</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {t("title.type")}
+                  </span>
                   <span className="font-medium">
                     {t(`anilist.format.${media.format}`) || media.format}
                   </span>
@@ -174,13 +182,17 @@ export default async function TitlePage({
               )}
               {media.episodes && (
                 <div>
-                  <span className="text-gray-600">{t("title.episodes")}</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {t("title.episodes")}
+                  </span>
                   <span className="font-medium">{media.episodes}</span>
                 </div>
               )}
               {media.status && (
                 <div>
-                  <span className="text-gray-600">{t("title.status")}</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {t("title.status")}
+                  </span>
                   <span className="font-medium">
                     {t(`anilist.status.${media.status}`) || media.status}
                   </span>
@@ -188,7 +200,9 @@ export default async function TitlePage({
               )}
               {media.season && media.seasonYear && (
                 <div>
-                  <span className="text-gray-600">{t("title.season")}</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {t("title.season")}
+                  </span>
                   <span className="font-medium">
                     {media.seasonYear}{" "}
                     {t(`season.${media.season.toLowerCase()}`) || media.season}
@@ -210,7 +224,7 @@ export default async function TitlePage({
                     genre && (
                       <span
                         key={idx}
-                        className="rounded bg-gray-100 px-3 py-1 text-sm"
+                        className="rounded bg-gray-100 px-3 py-1 text-sm dark:bg-gray-800"
                       >
                         {t(`anilist.genres.${genre}`) || genre}
                       </span>
@@ -230,7 +244,7 @@ export default async function TitlePage({
                 {media.studios.nodes.map((studio, idx) => (
                   <span
                     key={idx}
-                    className="rounded bg-gray-100 px-3 py-1 text-sm"
+                    className="rounded bg-gray-100 px-3 py-1 text-sm dark:bg-gray-800"
                   >
                     {studio.name}
                   </span>
