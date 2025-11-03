@@ -23,7 +23,8 @@
     "nextAiring": "次回放送：",
     "notYetReleased": "未放送",
     "airingTimeUndecided": "放送時間未定",
-    "viewDetails": "詳細を見る"
+    "viewDetails": "詳細を見る",
+    "downloadIcal": "カレンダーに追加"
   },
   "day": {
     "undecided": "未定",

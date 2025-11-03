@@ -23,7 +23,8 @@
     "nextAiring": "Next airing:",
     "notYetReleased": "Not yet released",
     "airingTimeUndecided": "Airing time undecided",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "downloadIcal": "Add to calendar"
   },
   "day": {
     "undecided": "Undecided",

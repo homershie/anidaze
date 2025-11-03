@@ -390,12 +390,20 @@ async function MediaList({
                               : t("media.airingTimeUndecided")}
                           </div>
                         )}
-                        <Link
-                          href={`/title/${mediaItem.id}`}
-                          className="mt-2 inline-block text-sm text-blue-600 hover:underline"
-                        >
-                          {t("media.viewDetails")}
-                        </Link>
+                        <div className="mt-2 flex items-center gap-3">
+                          <Link
+                            href={`/title/${mediaItem.id}`}
+                            className="text-sm text-blue-600 hover:underline"
+                          >
+                            {t("media.viewDetails")}
+                          </Link>
+                          <a
+                            href={`/api/ics/${mediaItem.id}`}
+                            className="text-sm text-green-600 hover:underline"
+                          >
+                            {t("media.downloadIcal")}
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </li>

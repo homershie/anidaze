@@ -91,6 +91,7 @@ export const AIRING_BY_MEDIA_QUERY = /* GraphQL */ `
         native
       }
       synonyms
+      episodes
     }
   }
 `;
@@ -268,6 +269,7 @@ export type AiringByMediaResponse = {
       native: string | null;
     };
     synonyms: Array<string | null> | null;
+    episodes: number | null;
   } | null;
 };
 

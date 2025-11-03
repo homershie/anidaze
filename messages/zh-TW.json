@@ -23,7 +23,8 @@
     "nextAiring": "下次播出：",
     "notYetReleased": "尚未播出",
     "airingTimeUndecided": "播出時間未定",
-    "viewDetails": "查看詳情"
+    "viewDetails": "查看詳情",
+    "downloadIcal": "加入行事曆"
   },
   "day": {
     "undecided": "未定",
