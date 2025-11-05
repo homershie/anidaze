@@ -243,3 +243,222 @@ export function getTimezoneDisplayName(timezone: string): string {
 
   return timezoneNames[timezone] || timezone;
 }
+
+/**
+ * 取得指定週偏移的週開始日期（週日）
+ * @param weekOffset 週偏移量，0 為本週，1 為下週，-1 為上週
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns Date 物件，表示該週的週日（00:00:00）
+ */
+export function getWeekStartDate(
+  weekOffset: number = 0,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): Date {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  // 取得當前日期在指定時區的資訊
+  const parts = formatter.formatToParts(now);
+  const year = parseInt(parts.find((p) => p.type === "year")?.value || "0");
+  const month = parseInt(parts.find((p) => p.type === "month")?.value || "0") - 1;
+  const day = parseInt(parts.find((p) => p.type === "day")?.value || "0");
+  const hour = parseInt(parts.find((p) => p.type === "hour")?.value || "0");
+  const minute = parseInt(parts.find((p) => p.type === "minute")?.value || "0");
+  const second = parseInt(parts.find((p) => p.type === "second")?.value || "0");
+
+  // 創建該時區的日期物件（使用 UTC 來模擬）
+  const localDate = new Date(Date.UTC(year, month, day, hour, minute, second));
+
+  // 取得星期幾（0=週日, 1=週一, ..., 6=週六）
+  const dayOfWeek = localDate.getUTCDay();
+
+  // 計算到週日的天數差
+  const daysToSunday = -dayOfWeek;
+
+  // 加上週偏移量
+  const targetDate = new Date(localDate);
+  targetDate.setUTCDate(targetDate.getUTCDate() + daysToSunday + weekOffset * 7);
+
+  // 設定為該日的 00:00:00
+  targetDate.setUTCHours(0, 0, 0, 0);
+
+  return targetDate;
+}
+
+/**
+ * 取得指定週偏移的週範圍
+ * @param weekOffset 週偏移量，0 為本週，1 為下週，-1 為上週
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns { start: Date, end: Date } 週開始（週日 00:00:00）和週結束（週六 23:59:59）
+ */
+export function getWeekRange(
+  weekOffset: number = 0,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): { start: Date; end: Date } {
+  const start = getWeekStartDate(weekOffset, timezone);
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 6); // 週六
+  end.setUTCHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+/**
+ * 判斷時間戳是否在指定週範圍內
+ * @param timestamp 時間戳（秒）
+ * @param weekOffset 週偏移量，0 為本週，1 為下週，-1 為上週
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns 是否在該週範圍內
+ */
+export function isWithinWeekRange(
+  timestamp: number,
+  weekOffset: number = 0,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): boolean {
+  const { start, end } = getWeekRange(weekOffset, timezone);
+  const date = new Date(timestamp * 1000);
+
+  return date >= start && date <= end;
+}
+
+/**
+ * 取得指定月偏移的月份第一天
+ * @param monthOffset 月偏移量，0 為本月，1 為下個月，-1 為上個月
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns Date 物件，表示該月的第一天（00:00:00）
+ */
+export function getMonthStartDate(
+  monthOffset: number = 0,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): Date {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  // 取得當前日期在指定時區的資訊
+  const parts = formatter.formatToParts(now);
+  const year = parseInt(parts.find((p) => p.type === "year")?.value || "0");
+  const month = parseInt(parts.find((p) => p.type === "month")?.value || "0") - 1;
+
+  // 計算目標月份
+  let targetYear = year;
+  let targetMonth = month + monthOffset;
+
+  // 處理月份溢出
+  while (targetMonth < 0) {
+    targetMonth += 12;
+    targetYear -= 1;
+  }
+  while (targetMonth >= 12) {
+    targetMonth -= 12;
+    targetYear += 1;
+  }
+
+  // 創建該月的第一天
+  const startDate = new Date(Date.UTC(targetYear, targetMonth, 1, 0, 0, 0, 0));
+
+  return startDate;
+}
+
+/**
+ * 取得指定月偏移的月範圍
+ * @param monthOffset 月偏移量，0 為本月，1 為下個月，-1 為上個月
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns { start: Date, end: Date } 月開始（第一天 00:00:00）和月結束（最後一天 23:59:59）
+ */
+export function getMonthRange(
+  monthOffset: number = 0,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): { start: Date; end: Date } {
+  const start = getMonthStartDate(monthOffset, timezone);
+  const end = new Date(start);
+
+  // 取得下個月的第一天，然後減去 1 毫秒
+  end.setUTCMonth(end.getUTCMonth() + 1);
+  end.setUTCDate(0); // 設為上個月的最後一天
+  end.setUTCHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+/**
+ * 判斷時間戳是否在指定月範圍內
+ * @param timestamp 時間戳（秒）
+ * @param monthOffset 月偏移量，0 為本月，1 為下個月，-1 為上個月
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns 是否在該月範圍內
+ */
+export function isWithinMonthRange(
+  timestamp: number,
+  monthOffset: number = 0,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): boolean {
+  const { start, end } = getMonthRange(monthOffset, timezone);
+  const date = new Date(timestamp * 1000);
+
+  return date >= start && date <= end;
+}
+
+/**
+ * 從時間戳取得該日期在指定時區的日期物件（只包含年月日，時間為 00:00:00）
+ * @param timestamp 時間戳（秒）
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns Date 物件，表示該日期（00:00:00）
+ */
+export function getDateFromTimestamp(
+  timestamp: number,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): Date {
+  const date = new Date(timestamp * 1000);
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const parts = formatter.formatToParts(date);
+  const year = parseInt(parts.find((p) => p.type === "year")?.value || "0");
+  const month = parseInt(parts.find((p) => p.type === "month")?.value || "0") - 1;
+  const day = parseInt(parts.find((p) => p.type === "day")?.value || "0");
+
+  return new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+}
+
+/**
+ * 從時間戳取得該時間在指定時區的小時數
+ * @param timestamp 時間戳（秒）
+ * @param timezone 時區，預設為 Asia/Taipei
+ * @returns 小時數（0-23）
+ */
+export function getHourFromTimestamp(
+  timestamp: number,
+  timezone: string = process.env.TIMEZONE || "Asia/Taipei"
+): number {
+  const date = new Date(timestamp * 1000);
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  return parseInt(parts.find((p) => p.type === "hour")?.value || "0");
+}

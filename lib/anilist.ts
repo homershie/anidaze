@@ -179,6 +179,13 @@ export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
           episode
           airingAt
         }
+        airingSchedule(notYetAired: true, perPage: 50) {
+          nodes {
+            episode
+            airingAt
+          }
+        }
+        genres
       }
     }
   }
@@ -217,6 +224,13 @@ export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
           episode
           airingAt
         }
+        airingSchedule(notYetAired: true, perPage: 50) {
+          nodes {
+            episode
+            airingAt
+          }
+        }
+        genres
       }
     }
   }
@@ -334,6 +348,13 @@ export type SeasonalMediaItem = {
     episode: number;
     airingAt: number;
   } | null;
+  airingSchedule?: {
+    nodes: Array<{
+      episode: number;
+      airingAt: number;
+    } | null> | null;
+  } | null;
+  genres?: Array<string | null> | null;
 };
 
 export type SeasonalMediaResponse = {

@@ -6,6 +6,19 @@
     "general": "一般コンテンツ ({count})",
     "adult": "成人向け ({count})"
   },
+  "viewMode": {
+    "week": "週",
+    "month": "月"
+  },
+  "adultContent": {
+    "show": "成人向けコンテンツを表示"
+  },
+  "navigation": {
+    "previousWeek": "前の週",
+    "nextWeek": "次の週",
+    "previousMonth": "前の月",
+    "nextMonth": "次の月"
+  },
   "season": {
     "winter": "冬季",
     "spring": "春季",

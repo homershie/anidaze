@@ -6,6 +6,19 @@
     "general": "一般內容 ({count})",
     "adult": "成人內容 ({count})"
   },
+  "viewMode": {
+    "week": "週",
+    "month": "月"
+  },
+  "adultContent": {
+    "show": "顯示成人內容"
+  },
+  "navigation": {
+    "previousWeek": "上週",
+    "nextWeek": "下週",
+    "previousMonth": "上個月",
+    "nextMonth": "下個月"
+  },
   "season": {
     "winter": "冬季",
     "spring": "春季",

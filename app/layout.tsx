@@ -280,7 +280,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <div className="mx-auto max-w-4xl p-6">
+            <div className="mx-auto max-w-full p-6">
               <header className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <Logo

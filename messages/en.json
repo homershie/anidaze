@@ -6,6 +6,19 @@
     "general": "General ({count})",
     "adult": "Adults ({count})"
   },
+  "viewMode": {
+    "week": "Week",
+    "month": "Month"
+  },
+  "adultContent": {
+    "show": "Show adult content"
+  },
+  "navigation": {
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
+  },
   "season": {
     "winter": "Winter",
     "spring": "Spring",
