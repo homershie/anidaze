@@ -41,8 +41,7 @@ export function CountryTags({
         onClick={() => handleCountryClick("")}
         className={cn(
           "transition-all",
-          selectedCountry === "" &&
-            "bg-primary ring-1 ring-primary border-primary"
+          selectedCountry === "" && "bg-brand-blue-600 text-white"
         )}
       >
         全部國家
@@ -55,8 +54,7 @@ export function CountryTags({
           onClick={() => handleCountryClick(country.code)}
           className={cn(
             "transition-all",
-            selectedCountry === country.code &&
-              "bg-primary ring-1 ring-primary border-primary"
+            selectedCountry === country.code && "bg-brand-blue-600 text-white"
           )}
         >
           {country.name}

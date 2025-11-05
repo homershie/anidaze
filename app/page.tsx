@@ -348,13 +348,13 @@ async function MediaList({
                         <div className="mt-2 flex items-center gap-3">
                           <Link
                             href={`/title/${mediaItem.id}`}
-                            className="text-sm text-blue-600 hover:underline"
+                            className="text-sm text-brand-red-500 hover:underline"
                           >
                             {t("media.viewDetails")}
                           </Link>
                           <a
                             href={`/api/ics/${mediaItem.id}`}
-                            className="text-sm text-green-600 hover:underline"
+                            className="text-sm text-brand-blue-600 hover:underline"
                           >
                             {t("media.downloadIcal")}
                           </a>

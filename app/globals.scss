@@ -42,6 +42,42 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  // 黃色色階系統（brand-yellow）
+  --color-brand-yellow-50: var(--brand-yellow-50);
+  --color-brand-yellow-100: var(--brand-yellow-100);
+  --color-brand-yellow-200: var(--brand-yellow-200);
+  --color-brand-yellow-300: var(--brand-yellow-300);
+  --color-brand-yellow-400: var(--brand-yellow-400);
+  --color-brand-yellow-500: var(--brand-yellow-500);
+  --color-brand-yellow-600: var(--brand-yellow-600);
+  --color-brand-yellow-700: var(--brand-yellow-700);
+  --color-brand-yellow-800: var(--brand-yellow-800);
+  --color-brand-yellow-900: var(--brand-yellow-900);
+  --color-brand-yellow-950: var(--brand-yellow-950);
+  // 紅色色階系統（brand-red）
+  --color-brand-red-50: var(--brand-red-50);
+  --color-brand-red-100: var(--brand-red-100);
+  --color-brand-red-200: var(--brand-red-200);
+  --color-brand-red-300: var(--brand-red-300);
+  --color-brand-red-400: var(--brand-red-400);
+  --color-brand-red-500: var(--brand-red-500);
+  --color-brand-red-600: var(--brand-red-600);
+  --color-brand-red-700: var(--brand-red-700);
+  --color-brand-red-800: var(--brand-red-800);
+  --color-brand-red-900: var(--brand-red-900);
+  --color-brand-red-950: var(--brand-red-950);
+  // 藍色色階系統（brand-blue）
+  --color-brand-blue-50: var(--brand-blue-50);
+  --color-brand-blue-100: var(--brand-blue-100);
+  --color-brand-blue-200: var(--brand-blue-200);
+  --color-brand-blue-300: var(--brand-blue-300);
+  --color-brand-blue-400: var(--brand-blue-400);
+  --color-brand-blue-500: var(--brand-blue-500);
+  --color-brand-blue-600: var(--brand-blue-600);
+  --color-brand-blue-700: var(--brand-blue-700);
+  --color-brand-blue-800: var(--brand-blue-800);
+  --color-brand-blue-900: var(--brand-blue-900);
+  --color-brand-blue-950: var(--brand-blue-950);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -61,14 +97,52 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  // 黃色色階系統（brand-yellow）
+  --brand-yellow-50: #fffbeb;
+  --brand-yellow-100: #fff4c6;
+  --brand-yellow-200: #ffe788;
+  --brand-yellow-300: #ffd54a;
+  --brand-yellow-400: #ffc11f;
+  --brand-yellow-500: #f9a007;
+  --brand-yellow-600: #dd7802;
+  --brand-yellow-700: #b75306;
+  --brand-yellow-800: #943f0c;
+  --brand-yellow-900: #7a340d;
+  --brand-yellow-950: #461a02;
+  // 紅色色階系統（brand-red）
+  --brand-red-50: #fff1f2;
+  --brand-red-100: #ffdfe1;
+  --brand-red-200: #ffc5c8;
+  --brand-red-300: #ff9da2;
+  --brand-red-400: #ff646c;
+  --brand-red-500: #ff333e;
+  --brand-red-600: #ed1521;
+  --brand-red-700: #c80d17;
+  --brand-red-800: #a50f17;
+  --brand-red-900: #88141a;
+  --brand-red-950: #4b0408;
+  // 藍色色階系統（brand-blue）
+  --brand-blue-50: #eef3ff;
+  --brand-blue-100: #e1e9fe;
+  --brand-blue-200: #c8d6fd;
+  --brand-blue-300: #a7bafa;
+  --brand-blue-400: #8496f5;
+  --brand-blue-500: #6772ed;
+  --brand-blue-600: #4546e0;
+  --brand-blue-700: #3d3cc6;
+  --brand-blue-800: #3333a0;
+  --brand-blue-900: #30327f;
+  --brand-blue-950: #1c1c4a;
+  // Primary 使用紅色 600，foreground 使用白色確保對比度
+  --primary: var(--brand-red-500);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  // Accent 使用藍色 600，foreground 使用白色確保對比度
+  --accent: var(--brand-blue-600);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
@@ -96,14 +170,52 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  // 黃色色階系統（brand-yellow）- 與淺色主題相同
+  --brand-yellow-50: #fffbeb;
+  --brand-yellow-100: #fff4c6;
+  --brand-yellow-200: #ffe788;
+  --brand-yellow-300: #ffd54a;
+  --brand-yellow-400: #ffc11f;
+  --brand-yellow-500: #f9a007;
+  --brand-yellow-600: #dd7802;
+  --brand-yellow-700: #b75306;
+  --brand-yellow-800: #943f0c;
+  --brand-yellow-900: #7a340d;
+  --brand-yellow-950: #461a02;
+  // 紅色色階系統（brand-red）- 與淺色主題相同
+  --brand-red-50: #fff1f2;
+  --brand-red-100: #ffdfe1;
+  --brand-red-200: #ffc5c8;
+  --brand-red-300: #ff9da2;
+  --brand-red-400: #ff646c;
+  --brand-red-500: #ff333e;
+  --brand-red-600: #ed1521;
+  --brand-red-700: #c80d17;
+  --brand-red-800: #a50f17;
+  --brand-red-900: #88141a;
+  --brand-red-950: #4b0408;
+  // 藍色色階系統（brand-blue）- 與淺色主題相同
+  --brand-blue-50: #eef3ff;
+  --brand-blue-100: #e1e9fe;
+  --brand-blue-200: #c8d6fd;
+  --brand-blue-300: #a7bafa;
+  --brand-blue-400: #8496f5;
+  --brand-blue-500: #6772ed;
+  --brand-blue-600: #4546e0;
+  --brand-blue-700: #3d3cc6;
+  --brand-blue-800: #3333a0;
+  --brand-blue-900: #30327f;
+  --brand-blue-950: #1c1c4a;
+  // Primary 使用紅色 600（與淺色主題相同），foreground 使用白色確保在深色背景上的對比度
+  --primary: var(--brand-red-600);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  // Accent 使用藍色 600（與淺色主題相同），foreground 使用白色確保在深色背景上的對比度
+  --accent: var(--brand-blue-600);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
