@@ -65,16 +65,19 @@ export function Logo({
   // 方式 2: 資料夾結構 logos/{locale}/{theme}.png
 
   const getImageSrc = () => {
+    // 將 locale 轉換為檔案命名格式（zh-TW -> zh-tw）
+    const localeForFile = locale.toLowerCase().replace(/_/g, "-");
+
     if (!mounted) {
       // 預設顯示淺色版本，避免首次渲染閃爍
-      return `/logos/logo-${locale}-light.png`;
+      return `/logos/logo-${localeForFile}-light.png`;
     }
 
     // 使用扁平化命名（推薦）
-    return `/logos/logo-${locale}-${currentTheme}.png`;
+    return `/logos/logo-${localeForFile}-${currentTheme}.png`;
 
     // 或者使用資料夾結構（取消註解下面這行，並註解上面那行）
-    // return `/logos/${locale}/${currentTheme}.png`;
+    // return `/logos/${localeForFile}/${currentTheme}.png`;
   };
 
   const imageSrc = getImageSrc();
