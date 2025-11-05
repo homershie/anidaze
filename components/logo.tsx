@@ -6,8 +6,14 @@
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useLocale } from "next-intl";
-import { useEffect, useState, startTransition } from "react";
+import { useEffect, useState, startTransition, useRef } from "react";
+import { locales } from "@/i18n/routing";
 import type { AppLocale } from "@/i18n/routing";
+
+// 支援的語言列表（從路由配置導入）
+const SUPPORTED_LOCALES: readonly AppLocale[] = locales;
+// 支援的主題列表
+const THEMES: readonly ("light" | "dark")[] = ["light", "dark"] as const;
 
 interface LogoProps {
   width?: number;
@@ -38,12 +44,29 @@ export function Logo({
   const locale = useLocale() as AppLocale;
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const preloadedRef = useRef(false);
 
-  // 確保組件在客戶端掛載後才顯示（避免 hydration mismatch）
-  // 這是必要的，因為 next-themes 需要客戶端渲染才能正確獲取主題
-  // 使用 startTransition 來避免 lint 警告
+  // 預載入所有可能的圖片組合（所有語言 x 所有主題）
+  // 這樣在切換主題或語言時，圖片已經在瀏覽器快取中，可以立即顯示
   useEffect(() => {
+    if (preloadedRef.current) return;
+    preloadedRef.current = true;
+
+    const preloadImages = () => {
+      SUPPORTED_LOCALES.forEach((loc) => {
+        const localeForFile = loc.toLowerCase().replace(/_/g, "-");
+        THEMES.forEach((themeName) => {
+          const imageSrc = `/logos/logo-${localeForFile}-${themeName}.png`;
+          // 使用 Image 物件預載入圖片到瀏覽器快取
+          const img = new window.Image();
+          img.src = imageSrc;
+        });
+      });
+    };
+
+    // 使用 startTransition 來避免阻塞主線程
     startTransition(() => {
+      preloadImages();
       setMounted(true);
     });
   }, []);

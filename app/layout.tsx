@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { HomeStatsWrapper } from "@/components/home-stats-wrapper";
 import { Logo } from "@/components/logo";
+import { TypekitLoader } from "@/components/typekit-loader";
 import { getCurrentSeason } from "@/lib/time";
 import {
   anilist,
@@ -271,6 +272,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <TypekitLoader />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
