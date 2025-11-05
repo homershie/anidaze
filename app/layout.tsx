@@ -18,7 +18,7 @@ import {
 } from "@/lib/anilist";
 import { getBestTitle } from "@/lib/title";
 import type { AppLocale } from "@/i18n/routing";
-import "./globals.css";
+import "./globals.scss";
 
 async function getAllSeasonalMedia(
   season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
