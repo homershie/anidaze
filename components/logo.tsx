@@ -9,6 +9,7 @@ import { useLocale } from "next-intl";
 import { useEffect, useState, startTransition, useRef } from "react";
 import { locales } from "@/i18n/routing";
 import type { AppLocale } from "@/i18n/routing";
+import { Link } from "@/i18n/navigation";
 
 // 支援的語言列表（從路由配置導入）
 const SUPPORTED_LOCALES: readonly AppLocale[] = locales;
@@ -107,17 +108,19 @@ export function Logo({
   const alt = `AniDaze Logo - ${locale}`;
 
   return (
-    <Image
-      src={imageSrc}
-      alt={alt}
-      width={width}
-      height={height}
-      className={className}
-      priority={priority}
-      style={{
-        maxWidth: "100%",
-        height: "auto",
-      }}
-    />
+    <Link href="/" aria-label="回到首頁">
+      <Image
+        src={imageSrc}
+        alt={alt}
+        width={width}
+        height={height}
+        className={className}
+        priority={priority}
+        style={{
+          maxWidth: "100%",
+          height: "auto",
+        }}
+      />
+    </Link>
   );
 }
