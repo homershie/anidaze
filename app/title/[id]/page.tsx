@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import {
   anilist,
   MEDIA_DETAIL_QUERY,
@@ -9,6 +10,118 @@ import { getBestTitle } from "@/lib/title";
 import { getJikanMetadata, extractMALIdFromAniList } from "@/lib/jikan";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id: idString } = await params;
+  const id = parseInt(idString, 10);
+
+  if (!Number.isFinite(id) || id <= 0) {
+    return {
+      title: "動畫不存在",
+    };
+  }
+
+  try {
+    const anilistData = await anilist<MediaDetailResponse>(
+      MEDIA_DETAIL_QUERY,
+      { mediaId: id },
+      { next: { revalidate: 60 * 60 * 24, tags: [`media-${id}`] } }
+    );
+
+    const media = anilistData.Media;
+    if (!media) {
+      return {
+        title: "動畫不存在",
+      };
+    }
+
+    const locale = await getLocale();
+    const t = await getTranslations();
+    const title = await getBestTitle(
+      {
+        romaji: media.title.romaji,
+        english: media.title.english,
+        native: media.title.native,
+        synonyms: media.synonyms,
+      },
+      locale as AppLocale
+    );
+
+    // 清理描述文字（移除 HTML 標籤）
+    const cleanDescription = (text: string | null): string => {
+      if (!text) return "";
+      return text
+        .replace(/<[^>]*>/g, "")
+        .replace(/\n/g, " ")
+        .trim()
+        .substring(0, 300);
+    };
+
+    const description =
+      cleanDescription(media.description) ||
+      `${title} - ${t("seo.description")}`;
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://anidaze.com";
+    const pageUrl = `${siteUrl}/title/${id}`;
+    const imageUrl =
+      media.coverImage?.extraLarge ||
+      media.coverImage?.large ||
+      "/web-app-manifest-512x512.png";
+
+    // 構建關鍵字
+    const keywords = [
+      title,
+      media.title.english || "",
+      media.title.romaji || "",
+      media.genres?.join(", ") || "",
+      "動畫",
+      "anime",
+      "AniList",
+      "MyAnimeList",
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    return {
+      title,
+      description,
+      keywords: keywords.split(",").map((k) => k.trim()),
+      alternates: {
+        canonical: pageUrl,
+      },
+      openGraph: {
+        type: "website",
+        locale: locale,
+        url: pageUrl,
+        siteName: "AniDaze",
+        title,
+        description,
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: [imageUrl],
+      },
+    };
+  } catch {
+    return {
+      title: "動畫不存在",
+    };
+  }
+}
 
 export default async function TitlePage({
   params,
@@ -67,8 +180,77 @@ export default async function TitlePage({
     title || undefined
   );
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://anidaze.com";
+  const pageUrl = `${siteUrl}/title/${id}`;
+  const imageUrl =
+    media.coverImage?.extraLarge || media.coverImage?.large || "";
+
+  // 構建結構化資料（JSON-LD）
+  const structuredData: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "TVSeries",
+    name: title,
+    alternateName: [
+      media.title.english,
+      media.title.romaji,
+      media.title.native,
+    ].filter(Boolean),
+    url: pageUrl,
+  };
+
+  if (media.description) {
+    structuredData.description = media.description
+      .replace(/<[^>]*>/g, "")
+      .substring(0, 500);
+  }
+
+  if (imageUrl) {
+    structuredData.image = imageUrl;
+  }
+
+  if (media.averageScore) {
+    structuredData.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: (media.averageScore / 10).toFixed(1),
+      bestRating: "10",
+      worstRating: "1",
+      ratingCount: media.popularity || 0,
+    };
+  }
+
+  if (media.genres && media.genres.length > 0) {
+    structuredData.genre = media.genres;
+  }
+
+  if (media.studios?.nodes && media.studios.nodes.length > 0) {
+    structuredData.productionCompany = media.studios.nodes.map((studio) => ({
+      "@type": "Organization",
+      name: studio.name,
+    }));
+  }
+
+  if (media.episodes) {
+    structuredData.numberOfEpisodes = media.episodes;
+  }
+
+  if (media.season && media.seasonYear) {
+    const monthMap: Record<string, string> = {
+      WINTER: "01",
+      SPRING: "04",
+      SUMMER: "07",
+      FALL: "10",
+    };
+    structuredData.datePublished = `${media.seasonYear}-${
+      monthMap[media.season]
+    }-01`;
+  }
+
   return (
     <main className="mx-auto max-w-4xl p-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="mb-4">
         <Link href="/" className="text-sm text-blue-600 hover:underline">
           {t("title.backToList")}
