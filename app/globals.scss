@@ -1,89 +1,11 @@
 // ============================================================================
 // Tailwind CSS 配置
 // ============================================================================
-@import "tailwindcss"; // Tailwind 需要使用 @import，無法使用 @use
-// 注意：由於 Tailwind 的 @import 必須在最前面，無法使用 @use "sass:map"
-// 因此使用 map-get 而非 map.get（會有 deprecation warning，但不影響功能）
+// 注意：Tailwind CSS v4 必須使用 @import，且必須在最前面
+// 這會產生 deprecation warning，但這是 Tailwind 的要求，無法避免
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
-
-// ============================================================================
-// 主題變數定義
-// ============================================================================
-
-// 基礎圓角
-$radius: 0.625rem;
-
-// 淺色主題顏色
-$light-theme: (
-  radius: $radius,
-  background: oklch(1 0 0),
-  foreground: oklch(0.145 0 0),
-  card: oklch(1 0 0),
-  card-foreground: oklch(0.145 0 0),
-  popover: oklch(1 0 0),
-  popover-foreground: oklch(0.145 0 0),
-  primary: oklch(0.922 0 0),
-  primary-foreground: oklch(0.985 0 0),
-  secondary: oklch(0.97 0 0),
-  secondary-foreground: oklch(0.205 0 0),
-  muted: oklch(0.97 0 0),
-  muted-foreground: oklch(0.556 0 0),
-  accent: oklch(0.97 0 0),
-  accent-foreground: oklch(0.205 0 0),
-  destructive: oklch(0.577 0.245 27.325),
-  border: oklch(0.922 0 0),
-  input: oklch(0.922 0 0),
-  ring: oklch(0.708 0 0),
-  chart-1: oklch(0.646 0.222 41.116),
-  chart-2: oklch(0.6 0.118 184.704),
-  chart-3: oklch(0.398 0.07 227.392),
-  chart-4: oklch(0.828 0.189 84.429),
-  chart-5: oklch(0.769 0.188 70.08),
-  sidebar: oklch(0.985 0 0),
-  sidebar-foreground: oklch(0.145 0 0),
-  sidebar-primary: oklch(0.205 0 0),
-  sidebar-primary-foreground: oklch(0.985 0 0),
-  sidebar-accent: oklch(0.97 0 0),
-  sidebar-accent-foreground: oklch(0.205 0 0),
-  sidebar-border: oklch(0.922 0 0),
-  sidebar-ring: oklch(0.708 0 0),
-);
-
-// 深色主題顏色
-$dark-theme: (
-  background: oklch(0.145 0 0),
-  foreground: oklch(0.985 0 0),
-  card: oklch(0.205 0 0),
-  card-foreground: oklch(0.985 0 0),
-  popover: oklch(0.205 0 0),
-  popover-foreground: oklch(0.985 0 0),
-  primary: oklch(0.922 0 0),
-  primary-foreground: oklch(0.205 0 0),
-  secondary: oklch(0.269 0 0),
-  secondary-foreground: oklch(0.985 0 0),
-  muted: oklch(0.269 0 0),
-  muted-foreground: oklch(0.708 0 0),
-  accent: oklch(0.269 0 0),
-  accent-foreground: oklch(0.985 0 0),
-  destructive: oklch(0.704 0.191 22.216),
-  border: oklch(1 0 0 / 10%),
-  input: oklch(1 0 0 / 15%),
-  ring: oklch(0.556 0 0),
-  chart-1: oklch(0.488 0.243 264.376),
-  chart-2: oklch(0.696 0.17 162.48),
-  chart-3: oklch(0.769 0.188 70.08),
-  chart-4: oklch(0.627 0.265 303.9),
-  chart-5: oklch(0.645 0.246 16.439),
-  sidebar: oklch(0.205 0 0),
-  sidebar-foreground: oklch(0.985 0 0),
-  sidebar-primary: oklch(0.488 0.243 264.376),
-  sidebar-primary-foreground: oklch(0.985 0 0),
-  sidebar-accent: oklch(0.269 0 0),
-  sidebar-accent-foreground: oklch(0.985 0 0),
-  sidebar-border: oklch(1 0 0 / 10%),
-  sidebar-ring: oklch(0.556 0 0),
-);
 
 // Tailwind 主題配置
 @theme inline {
@@ -126,22 +48,79 @@ $dark-theme: (
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+// ============================================================================
+// 主題變數定義
+// ============================================================================
+
 // 淺色主題 CSS 變數
 :root {
-  --radius: #{map-get($light-theme, radius)};
-
-  @each $key, $value in $light-theme {
-    @if $key != radius {
-      --#{$key}: #{$value};
-    }
-  }
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 // 深色主題 CSS 變數
 .dark {
-  @each $key, $value in $dark-theme {
-    --#{$key}: #{$value};
-  }
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 // ============================================================================
@@ -149,44 +128,52 @@ $dark-theme: (
 // ============================================================================
 
 // GenSenRounded2 字體定義（繁體中文和日文）
-$gensen-fonts: (
-  "EL": (
-    weight: 200,
-    file: "GenSenRounded2-EL.ttc",
-  ),
-  "L": (
-    weight: 300,
-    file: "GenSenRounded2-L.ttc",
-  ),
-  "R": (
-    weight: 400,
-    file: "GenSenRounded2-R.ttc",
-  ),
-  "M": (
-    weight: 500,
-    file: "GenSenRounded2-M.ttc",
-  ),
-  "B": (
-    weight: 700,
-    file: "GenSenRounded2-B.ttc",
-  ),
-  "H": (
-    weight: 900,
-    file: "GenSenRounded2-H.ttc",
-  ),
-);
+@font-face {
+  font-family: "GenSenRounded2";
+  src: url("/gensen-font/GenSenRounded2-EL.ttc") format("truetype-collection");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
 
-@each $variant, $config in $gensen-fonts {
-  $weight: map-get($config, weight);
-  $file: map-get($config, file);
+@font-face {
+  font-family: "GenSenRounded2";
+  src: url("/gensen-font/GenSenRounded2-L.ttc") format("truetype-collection");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
 
-  @font-face {
-    font-family: "GenSenRounded2";
-    src: url("/gensen-font/#{$file}") format("truetype-collection");
-    font-weight: $weight;
-    font-style: normal;
-    font-display: swap;
-  }
+@font-face {
+  font-family: "GenSenRounded2";
+  src: url("/gensen-font/GenSenRounded2-R.ttc") format("truetype-collection");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GenSenRounded2";
+  src: url("/gensen-font/GenSenRounded2-M.ttc") format("truetype-collection");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GenSenRounded2";
+  src: url("/gensen-font/GenSenRounded2-B.ttc") format("truetype-collection");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GenSenRounded2";
+  src: url("/gensen-font/GenSenRounded2-H.ttc") format("truetype-collection");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
 }
 
 // ============================================================================

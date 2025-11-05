@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  sassOptions: {
+    // 抑制 @import 的 deprecation warning
+    // Tailwind CSS v4 必須使用 @import，這是官方要求
+    silenceDeprecations: ["import"],
+  },
 };
 
 export default withNextIntl(nextConfig);
