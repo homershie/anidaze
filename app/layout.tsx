@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { HomeStatsWrapper } from "@/components/home-stats-wrapper";
+import { Logo } from "@/components/logo";
 import { getCurrentSeason } from "@/lib/time";
 import {
   anilist,
@@ -278,9 +279,17 @@ export default async function RootLayout({
           <NextIntlClientProvider locale={locale} messages={messages}>
             <div className="mx-auto max-w-4xl p-6">
               <header className="flex items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold">
-                  {t("app.title", { year, season: seasonNames[season] })}
-                </h1>
+                <div className="flex items-center gap-4">
+                  <Logo
+                    width={180}
+                    height={54}
+                    priority
+                    className="hidden sm:block"
+                  />
+                  <h1 className="text-2xl font-bold sm:hidden">
+                    {t("app.title", { year, season: seasonNames[season] })}
+                  </h1>
+                </div>
                 <div className="flex items-center gap-4">
                   <ThemeToggle />
                   <LocaleSwitcher />
