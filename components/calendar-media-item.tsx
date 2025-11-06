@@ -29,7 +29,6 @@ interface CalendarMediaItemProps {
 
 export function CalendarMediaItem({
   mediaItem,
-  episode,
   translations,
   color,
 }: CalendarMediaItemProps) {

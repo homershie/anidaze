@@ -1,0 +1,9 @@
+{
+  "crons": [
+    {
+      "path": "/api/seasonal-revalidate?force=true",
+      "schedule": "0 0 1 1,4,7,10 *"
+    }
+  ]
+}
+
