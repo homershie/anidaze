@@ -71,19 +71,24 @@ export async function GET(req: Request) {
     });
   }
 
-  // 清除季節相關的快取
+  // 清除季節相關的快取和翻譯快取
   try {
     revalidateTag("seasonal", { expire: 0 });
     revalidateTag("ongoing", { expire: 0 });
     revalidateTag("airing", { expire: 0 });
 
+    // Clear translation cache to get fresh translations for new season
+    const { clearTranslationCache } = await import("@/lib/translation-cache");
+    await clearTranslationCache();
+
     const { season, year } = getCurrentSeason();
 
     return NextResponse.json({
       ok: true,
-      message: "Cache revalidated successfully",
+      message: "Cache and translations revalidated successfully",
       currentSeason: { season, year },
       revalidatedTags: ["seasonal", "ongoing", "airing"],
+      translationCacheCleared: true,
     });
   } catch (error) {
     return NextResponse.json(
@@ -111,13 +116,18 @@ export async function POST(req: Request) {
     revalidateTag("ongoing", { expire: 0 });
     revalidateTag("airing", { expire: 0 });
 
+    // Clear translation cache to get fresh translations for new season
+    const { clearTranslationCache } = await import("@/lib/translation-cache");
+    await clearTranslationCache();
+
     const { season, year } = getCurrentSeason();
 
     return NextResponse.json({
       ok: true,
-      message: "Cache revalidated successfully",
+      message: "Cache and translations revalidated successfully",
       currentSeason: { season, year },
       revalidatedTags: ["seasonal", "ongoing", "airing"],
+      translationCacheCleared: true,
     });
   } catch (error) {
     return NextResponse.json(

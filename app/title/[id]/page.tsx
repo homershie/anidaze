@@ -8,6 +8,10 @@ import {
 } from "@/lib/anilist";
 import { getBestTitle } from "@/lib/title";
 import { getJikanMetadata, extractMALIdFromAniList } from "@/lib/jikan";
+import {
+  getBangumiMetadata,
+  extractBangumiIdFromAniList,
+} from "@/lib/bangumi";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -174,10 +178,21 @@ export default async function TitlePage({
   // Extract MAL ID from AniList external links
   const malId = extractMALIdFromAniList(media.externalLinks);
 
+  // Extract Bangumi ID from AniList external links
+  const bangumiId = extractBangumiIdFromAniList(media.externalLinks);
+
   // Fetch Jikan metadata (try with MAL ID first, fallback to title search)
   const jikanData = await getJikanMetadata(
     malId || undefined,
     title || undefined
+  );
+
+  // Fetch Bangumi metadata (try with Bangumi ID first, fallback to title search)
+  // Pass locale to enable automatic translation for zh-TW users
+  const bangumiData = await getBangumiMetadata(
+    bangumiId || undefined,
+    title || undefined,
+    locale as string
   );
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://anidaze.com";
@@ -293,6 +308,24 @@ export default async function TitlePage({
 
         {/* Main Content */}
         <div className="space-y-4">
+          {/* Description Section */}
+          {(bangumiData?.summary_zh ||
+            bangumiData?.summary ||
+            media.description) && (
+            <div className="rounded-lg border p-4">
+              <h2 className="mb-3 text-lg font-semibold">
+                {t("title.description")}
+              </h2>
+              <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                {locale === "zh-TW" && bangumiData?.summary_zh
+                  ? bangumiData.summary_zh
+                  : locale === "ja" && bangumiData?.summary
+                    ? bangumiData.summary
+                    : media.description?.replace(/<[^>]*>/g, "") || ""}
+              </div>
+            </div>
+          )}
+
           {/* Scores Section */}
           <div className="rounded-lg border p-4">
             <h2 className="mb-3 text-lg font-semibold">{t("title.scores")}</h2>
@@ -342,6 +375,24 @@ export default async function TitlePage({
                   <div className="text-2xl font-bold">#{jikanData.rank}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-300">
                     {t("title.siteRank")}
+                  </div>
+                </div>
+              )}
+
+              {/* Bangumi Score */}
+              {bangumiData?.rating && bangumiData.rating.score > 0 && (
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Bangumi
+                  </div>
+                  <div className="text-2xl font-bold">
+                    {bangumiData.rating.score.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-300">
+                    {bangumiData.rating.total &&
+                      `${bangumiData.rating.total.toLocaleString()} ${t(
+                        "title.ratings"
+                      )}`}
                   </div>
                 </div>
               )}
