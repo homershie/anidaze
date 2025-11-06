@@ -163,5 +163,11 @@
       "genre": "類型",
       "studio": "製作公司"
     }
+  },
+  "footer": {
+    "copyright": "© {year} AniDaze. 版權所有。",
+    "creator": "荷馬桑 homer shie",
+    "github": "GitHub",
+    "instagram": "Instagram"
   }
 }

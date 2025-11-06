@@ -163,5 +163,11 @@
       "genre": "Genre",
       "studio": "Studio"
     }
+  },
+  "footer": {
+    "copyright": "© {year} AniDaze. All rights reserved.",
+    "creator": "Homer Shie",
+    "github": "GitHub",
+    "instagram": "Instagram"
   }
 }

@@ -5,6 +5,7 @@ import { getMessages, getLocale, getTranslations } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SearchProvider } from "@/components/search-context";
 import { HeaderWrapper } from "@/components/header-wrapper";
+import { Footer } from "@/components/footer";
 import { TypekitLoader } from "@/components/typekit-loader";
 import { getCurrentSeason } from "@/lib/time";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -140,6 +141,8 @@ export default async function RootLayout({
                 <HeaderWrapper />
 
                 {children}
+
+                <Footer />
               </div>
             </SearchProvider>
           </NextIntlClientProvider>

@@ -163,5 +163,11 @@
       "genre": "ジャンル",
       "studio": "制作会社"
     }
+  },
+  "footer": {
+    "copyright": "© {year} AniDaze. 全著作権所有。",
+    "creator": "ホーマー・シェ",
+    "github": "GitHub",
+    "instagram": "Instagram"
   }
 }
