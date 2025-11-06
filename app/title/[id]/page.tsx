@@ -55,6 +55,16 @@ export async function generateMetadata({
       locale as AppLocale
     );
 
+    // Extract Bangumi ID from AniList external links
+    const bangumiId = extractBangumiIdFromAniList(media.externalLinks);
+
+    // Fetch Bangumi metadata for Japanese and Chinese descriptions
+    const bangumiData = await getBangumiMetadata(
+      bangumiId || undefined,
+      title || undefined,
+      locale as string
+    );
+
     // 清理描述文字（移除 HTML 標籤）
     const cleanDescription = (text: string | null): string => {
       if (!text) return "";
@@ -65,9 +75,23 @@ export async function generateMetadata({
         .substring(0, 300);
     };
 
-    const description =
-      cleanDescription(media.description) ||
-      `${title} - ${t("seo.description")}`;
+    // 根據語言選擇對應的描述
+    let description = "";
+    if (locale === "zh-TW" && bangumiData?.summary_zh) {
+      // 繁體中文：使用 Bangumi 翻譯後的中文描述
+      description = cleanDescription(bangumiData.summary_zh);
+    } else if (locale === "ja" && bangumiData?.summary) {
+      // 日文：使用 Bangumi 日文原文描述
+      description = cleanDescription(bangumiData.summary);
+    } else {
+      // 英文或其他語言：使用 AniList 英文描述
+      description = cleanDescription(media.description);
+    }
+
+    // 如果沒有描述，使用預設值
+    if (!description) {
+      description = `${title} - ${t("seo.description")}`;
+    }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://anidaze.com";
     const pageUrl = `${siteUrl}/title/${id}`;
