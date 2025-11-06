@@ -26,8 +26,7 @@
     "fall": "秋季"
   },
   "stats": {
-    "total": "共 {count} 部動畫（{currentSeason} 部本季新番，{ongoing} 部長期播放）",
-    "totalWithCountry": "共 {count} 部動畫（{currentSeason} 部本季新番，{ongoing} 部長期播放） - {country}"
+    "currentAiring": "目前上映共 {count} 部動畫（{currentSeason} 部{season}新番，{ongoing} 部長期播放）"
   },
   "media": {
     "ongoing": "長期播放",

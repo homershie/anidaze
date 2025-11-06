@@ -251,9 +251,8 @@ export default async function RootLayout({
       })
     );
 
-    // 傳遞所有數據，讓客戶端組件根據 searchParams 過濾
+    // 傳遞統計數據
     statsData = {
-      allItems: itemsWithTitles,
       itemsWithTitlesCount: itemsWithTitles.length,
       itemsWithTitlesCurrentSeasonCount: itemsWithTitles.filter(
         (m) => m.isCurrentSeason
@@ -261,6 +260,7 @@ export default async function RootLayout({
       itemsWithTitlesOngoingCount: itemsWithTitles.filter(
         (m) => !m.isCurrentSeason
       ).length,
+      season: seasonNames[season],
     };
   } catch {
     // 如果獲取數據失敗（例如非首頁），則不設置 statsData

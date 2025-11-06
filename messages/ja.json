@@ -26,8 +26,7 @@
     "fall": "秋季"
   },
   "stats": {
-    "total": "合計 {count} 作品（{currentSeason} 作品が今期新作、{ongoing} 作品が長期放送）",
-    "totalWithCountry": "合計 {count} 作品（{currentSeason} 作品が今期新作、{ongoing} 作品が長期放送） - {country}"
+    "currentAiring": "現在放送中：{count} 作品（{currentSeason} 作品が{season}新作、{ongoing} 作品が長期放送）"
   },
   "media": {
     "ongoing": "長期放送",

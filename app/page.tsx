@@ -19,8 +19,6 @@ import {
 } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 import { ViewControls } from "@/components/view-controls";
-import { SwipeableView } from "@/components/swipeable-view";
-import { ViewNavigation } from "@/components/view-navigation";
 import { CalendarMediaItem } from "@/components/calendar-media-item";
 import { getGenreColor } from "@/lib/genre-colors";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -102,24 +100,14 @@ export default async function Home({
   searchParams: Promise<{
     country?: string;
     viewMode?: "week" | "month";
-    weekOffset?: string;
-    monthOffset?: string;
     showAdult?: string;
   }>;
 }) {
   const t = await getTranslations();
   const params = await searchParams;
-  const {
-    country: selectedCountry,
-    viewMode = "week",
-    weekOffset,
-    monthOffset,
-    showAdult,
-  } = params;
+  const { country: selectedCountry, viewMode = "week", showAdult } = params;
 
   const showAdultContent = showAdult === "true";
-  const weekOffsetNum = weekOffset ? parseInt(weekOffset, 10) : 0;
-  const monthOffsetNum = monthOffset ? parseInt(monthOffset, 10) : 0;
 
   const { season, year } = getCurrentSeason();
 
@@ -199,17 +187,17 @@ export default async function Home({
     filteredItems = filteredItems.filter((m) => !m.isAdult);
   }
 
-  // 根據視圖模式和偏移量過濾時間範圍
+  // 根據視圖模式過濾時間範圍（固定為當前週/月）
   let timeFilteredItems = filteredItems;
   if (viewMode === "week") {
-    // 週視圖：只顯示有下一次播出時間且在該週範圍內的作品
+    // 週視圖：只顯示有下一次播出時間且在本週範圍內的作品
     timeFilteredItems = filteredItems.filter((item) => {
       const nextEpisode = item.nextAiringEpisode;
       if (!nextEpisode?.airingAt) return false;
-      return isWithinWeekRange(nextEpisode.airingAt, weekOffsetNum);
+      return isWithinWeekRange(nextEpisode.airingAt, 0);
     });
   } else if (viewMode === "month") {
-    // 月視圖：顯示有任何播出時間在該月範圍內的作品
+    // 月視圖：顯示有任何播出時間在本月範圍內的作品
     timeFilteredItems = filteredItems.filter((item) => {
       const airingSchedule = item.airingSchedule?.nodes || [];
       const episodes =
@@ -228,7 +216,7 @@ export default async function Home({
 
       // 檢查是否有任何播出時間在月份範圍內
       return episodes.some((episode) => {
-        return isWithinMonthRange(episode.airingAt, monthOffsetNum);
+        return isWithinMonthRange(episode.airingAt, 0);
       });
     });
   }
@@ -274,29 +262,12 @@ export default async function Home({
         }}
       />
 
-      <div className="mt-4 space-y-4">
-        <ViewNavigation
-          viewMode={viewMode}
-          weekOffset={weekOffsetNum}
-          monthOffset={monthOffsetNum}
-          translations={{
-            previousWeek: t("navigation.previousWeek"),
-            nextWeek: t("navigation.nextWeek"),
-            previousMonth: t("navigation.previousMonth"),
-            nextMonth: t("navigation.nextMonth"),
-          }}
-        />
-        <SwipeableView
-          viewMode={viewMode}
-          weekOffset={weekOffsetNum}
-          monthOffset={monthOffsetNum}
-        >
-          {viewMode === "week" ? (
-            <WeekView media={timeFilteredItems} weekOffset={weekOffsetNum} />
-          ) : (
-            <MonthView media={timeFilteredItems} monthOffset={monthOffsetNum} />
-          )}
-        </SwipeableView>
+      <div className="mt-4">
+        {viewMode === "week" ? (
+          <WeekView media={timeFilteredItems} weekOffset={0} />
+        ) : (
+          <MonthView media={timeFilteredItems} monthOffset={0} />
+        )}
       </div>
     </main>
   );

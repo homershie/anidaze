@@ -26,8 +26,7 @@
     "fall": "Fall"
   },
   "stats": {
-    "total": "Total {count} anime ({currentSeason} new this season, {ongoing} ongoing)",
-    "totalWithCountry": "Total {count} anime ({currentSeason} new this season, {ongoing} ongoing) - {country}"
+    "currentAiring": "Currently airing: {count} anime ({currentSeason} {season} new, {ongoing} ongoing)"
   },
   "media": {
     "ongoing": "Ongoing",
