@@ -78,6 +78,18 @@
   --color-brand-blue-800: var(--brand-blue-800);
   --color-brand-blue-900: var(--brand-blue-900);
   --color-brand-blue-950: var(--brand-blue-950);
+  // 灰色色階系統（surface）
+  --color-surface-50: var(--surface-50);
+  --color-surface-100: var(--surface-100);
+  --color-surface-200: var(--surface-200);
+  --color-surface-300: var(--surface-300);
+  --color-surface-400: var(--surface-400);
+  --color-surface-500: var(--surface-500);
+  --color-surface-600: var(--surface-600);
+  --color-surface-700: var(--surface-700);
+  --color-surface-800: var(--surface-800);
+  --color-surface-900: var(--surface-900);
+  --color-surface-950: var(--surface-950);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -143,6 +155,18 @@
   // Accent 使用藍色 600，foreground 使用白色確保對比度
   --accent: var(--brand-blue-600);
   --accent-foreground: oklch(1 0 0);
+  // Surface 使用灰階
+  --surface-50: #f6f6f6;
+  --surface-100: #e7e7e7;
+  --surface-200: #d1d1d1;
+  --surface-300: #b0b0b0;
+  --surface-400: #888888;
+  --surface-500: #6d6d6d;
+  --surface-600: #5d5d5d;
+  --surface-700: #4f4f4f;
+  --surface-800: #454545;
+  --surface-900: #3d3d3d;
+  --surface-950: #0a0a0a;
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
@@ -216,6 +240,18 @@
   // Accent 使用藍色 600（與淺色主題相同），foreground 使用白色確保在深色背景上的對比度
   --accent: var(--brand-blue-600);
   --accent-foreground: oklch(1 0 0);
+  // Surface 使用灰階
+  --surface-50: #f6f6f6;
+  --surface-100: #e7e7e7;
+  --surface-200: #d1d1d1;
+  --surface-300: #b0b0b0;
+  --surface-400: #888888;
+  --surface-500: #6d6d6d;
+  --surface-600: #5d5d5d;
+  --surface-700: #4f4f4f;
+  --surface-800: #454545;
+  --surface-900: #3d3d3d;
+  --surface-950: #0a0a0a;
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);

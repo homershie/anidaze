@@ -12,7 +12,6 @@ import {
   getCurrentSeason,
   getDayOfWeek,
   isWithinWeekRange,
-  isWithinMonthRange,
   getWeekRange,
   getMonthRange,
   getDateFromTimestamp,
@@ -205,7 +204,32 @@ export default async function Home({
       return isWithinWeekRange(nextEpisode.airingAt, 0);
     });
   } else if (viewMode === "month") {
-    // 月視圖：顯示有任何播出時間在本月範圍內的作品
+    // 月視圖：顯示有任何播出時間在本月範圍內的作品（包括過去的日期）
+    const { start: monthStart, end: monthEnd } = getMonthRange(0);
+    // 創建只包含日期部分的比較對象（忽略時間）
+    const monthStartOnly = new Date(
+      Date.UTC(
+        monthStart.getUTCFullYear(),
+        monthStart.getUTCMonth(),
+        monthStart.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+    const monthEndOnly = new Date(
+      Date.UTC(
+        monthEnd.getUTCFullYear(),
+        monthEnd.getUTCMonth(),
+        monthEnd.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+
     timeFilteredItems = filteredItems.filter((item) => {
       const airingSchedule = item.airingSchedule?.nodes || [];
       const episodes =
@@ -222,9 +246,25 @@ export default async function Home({
             ]
           : [];
 
-      // 檢查是否有任何播出時間在月份範圍內
+      // 檢查是否有任何播出時間在月份範圍內（包括過去的日期）
       return episodes.some((episode) => {
-        return isWithinMonthRange(episode.airingAt, 0);
+        // 使用 getDateFromTimestamp 來獲取一致的時區處理
+        const episodeDate = getDateFromTimestamp(episode.airingAt);
+        const episodeDateOnly = new Date(
+          Date.UTC(
+            episodeDate.getUTCFullYear(),
+            episodeDate.getUTCMonth(),
+            episodeDate.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+        // 包含過去的日期，只要在月份範圍內
+        return (
+          episodeDateOnly >= monthStartOnly && episodeDateOnly <= monthEndOnly
+        );
       });
     });
   }
@@ -269,7 +309,7 @@ export default async function Home({
   };
 
   return (
-    <main>
+    <main className="max-w-7xl mx-auto px-4 relative">
       <ViewControls
         viewMode={viewMode}
         showAdult={showAdultContent}
@@ -508,7 +548,7 @@ async function MonthView({
   const mediaByDate: Record<string, MediaItemWithEpisode[]> = {};
 
   media.forEach((mediaItem) => {
-    // 獲取所有未來的播出時間
+    // 獲取所有播出時間（包括過去的日期）
     const airingSchedule = mediaItem.airingSchedule?.nodes || [];
 
     // 如果沒有 airingSchedule，使用 nextAiringEpisode 作為備用
@@ -527,14 +567,52 @@ async function MonthView({
         : [];
 
     episodes.forEach((episode) => {
-      // 只處理在月份範圍內的播出時間
-      const episodeDate = new Date(episode.airingAt * 1000);
-      if (episodeDate < start || episodeDate > end) return;
+      // 使用 getDateFromTimestamp 來獲取一致的時區處理
+      const episodeDate = getDateFromTimestamp(episode.airingAt);
 
-      const date = getDateFromTimestamp(episode.airingAt);
-      const dateKey = `${date.getUTCFullYear()}-${String(
-        date.getUTCMonth() + 1
-      ).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+      // 只處理在月份範圍內的播出時間（包括過去的日期）
+      // 使用 monthStart 和 monthEnd 來確保只顯示當月的內容
+      // 比較日期部分（年月日），忽略時間部分
+      const episodeDateOnly = new Date(
+        Date.UTC(
+          episodeDate.getUTCFullYear(),
+          episodeDate.getUTCMonth(),
+          episodeDate.getUTCDate(),
+          0,
+          0,
+          0,
+          0
+        )
+      );
+      const monthStartOnly = new Date(
+        Date.UTC(
+          monthStart.getUTCFullYear(),
+          monthStart.getUTCMonth(),
+          monthStart.getUTCDate(),
+          0,
+          0,
+          0,
+          0
+        )
+      );
+      const monthEndOnly = new Date(
+        Date.UTC(
+          monthEnd.getUTCFullYear(),
+          monthEnd.getUTCMonth(),
+          monthEnd.getUTCDate(),
+          0,
+          0,
+          0,
+          0
+        )
+      );
+
+      if (episodeDateOnly < monthStartOnly || episodeDateOnly > monthEndOnly)
+        return;
+
+      const dateKey = `${episodeDate.getUTCFullYear()}-${String(
+        episodeDate.getUTCMonth() + 1
+      ).padStart(2, "0")}-${String(episodeDate.getUTCDate()).padStart(2, "0")}`;
 
       if (!mediaByDate[dateKey]) {
         mediaByDate[dateKey] = [];

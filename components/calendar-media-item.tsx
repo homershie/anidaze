@@ -41,7 +41,7 @@ export function CalendarMediaItem({
       <PopoverTrigger asChild>
         <div
           className={cn(
-            "text-xs sm:text-sm truncate px-1 py-0.5 rounded cursor-pointer",
+            "min-h-[1.25rem] text-[0.5rem] sm:text-xs md:text-sm truncate px-1 py-0.5 rounded cursor-pointer",
             itemColor.bg,
             itemColor.text,
             itemColor.hover

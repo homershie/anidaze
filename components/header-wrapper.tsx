@@ -16,17 +16,17 @@ export function HeaderWrapper() {
   }
 
   return (
-    <header className="min-h-[80px] flex flex-wrap items-center sm:justify-between justify-center gap-4">
-      <div className="flex items-center gap-4 flex-shrink-0">
+    <header className="min-h-[100px] flex flex-wrap items-center sm:justify-between justify-center gap-4 pt-4 pb-4 fixed top-0 left-0 right-0 z-50 bg-white dark:bg-surface-950 box-border">
+      <div className="flex items-center gap-4 flex-shrink-0 ml-4">
         <Logo width={180} height={54} priority className="block" />
       </div>
-      <div className="flex items-center gap-4 flex-shrink-0">
+      <div className="flex items-center gap-4 flex-shrink-0 mr-4">
         <SearchToggle />
         <ThemeToggle />
         <LocaleSwitcher />
       </div>
 
-      <Separator />
+      <Separator className="absolute bottom-0 left-0 right-0" />
     </header>
   );
 }

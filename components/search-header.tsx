@@ -47,8 +47,8 @@ export function SearchHeader() {
   };
 
   return (
-    <header className="min-h-[80px] flex flex-wrap items-center sm:justify-between justify-center gap-4">
-      <div className="flex items-center gap-4 flex-shrink-0 w-full sm:w-auto">
+    <header className="min-h-[100px] flex items-center gap-4 pt-4 pb-4 fixed top-0 left-0 right-0 z-50 bg-white dark:bg-surface-950 box-border">
+      <div className="flex items-center gap-4 flex-shrink-0 ml-4">
         <Button
           variant="ghost"
           size="icon"
@@ -59,30 +59,34 @@ export function SearchHeader() {
           <ArrowLeft className="size-4" />
           <span className="sr-only">{t("back")}</span>
         </Button>
-        <h1 className="text-2xl text-black/70 dark:text-white/70 font-medium">
+        <h1 className="text-2xl hidden sm:block text-black/70 dark:text-white/70 font-medium whitespace-nowrap">
           {t("title")}
         </h1>
       </div>
-      <div className="flex items-center gap-4 flex-shrink-0 w-full sm:w-auto">
+      <div className="flex items-center justify-end gap-4 flex-1 min-w-0 mr-4">
         <form
           onSubmit={handleSearch}
-          className="flex-1 sm:flex-initial min-w-0"
+          className="flex-shrink min-w-0 w-full max-w-[400px]"
         >
-          <InputGroup className="w-full sm:w-auto min-w-[300px] min-h-[40px]">
+          <InputGroup className="w-full min-w-0 min-h-[40px]">
             <InputGroupInput
               placeholder={t("placeholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="min-w-0"
             />
-            <InputGroupAddon align="inline-end">
+            <InputGroupAddon align="inline-end" className="flex-shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <InputGroupButton
                     variant="ghost"
-                    className="!pr-1.5 text-xs"
+                    className="!pr-1.5 text-xs whitespace-nowrap"
                     type="button"
                   >
-                    {selectedCategoryLabel}
+                    <span className="hidden sm:inline">
+                      {selectedCategoryLabel}
+                    </span>
+                    <span className="sm:hidden">類</span>
                     <ChevronDown className="size-3" />
                   </InputGroupButton>
                 </DropdownMenuTrigger>
@@ -99,7 +103,7 @@ export function SearchHeader() {
               </DropdownMenu>
               <InputGroupButton
                 variant="default"
-                className="bg-transparent text-black/70 dark:text-white/70 hover:bg-brand-blue-800 hover:text-white"
+                className="bg-transparent text-black/70 dark:text-white/70 hover:bg-brand-blue-800 hover:text-white flex-shrink-0"
                 size="icon-sm"
                 type="submit"
                 aria-label={t("submit")}
@@ -111,7 +115,7 @@ export function SearchHeader() {
           </InputGroup>
         </form>
       </div>
-      <Separator />
+      <Separator className="absolute bottom-0 left-0 right-0" />
     </header>
   );
 }

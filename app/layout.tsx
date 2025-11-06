@@ -135,7 +135,7 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider locale={locale} messages={messages}>
             <SearchProvider>
-              <div className="mx-auto max-w-full p-6 p">
+              <div className="mx-auto max-w-full p-0 relative top-[100px]">
                 <HeaderWrapper />
 
                 {children}

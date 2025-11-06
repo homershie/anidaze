@@ -52,7 +52,7 @@ export function ViewControls({
 
   return (
     <div className="flex flex-col gap-4 mt-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-center sm:justify-between flex-wrap gap-4">
         <Tabs value={viewMode} onValueChange={handleViewModeChange}>
           <TabsList>
             <TabsTrigger value="week">{translations.week}</TabsTrigger>

@@ -179,7 +179,7 @@ export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
           episode
           airingAt
         }
-        airingSchedule(notYetAired: true, perPage: 50) {
+        airingSchedule(perPage: 50) {
           nodes {
             episode
             airingAt
@@ -224,7 +224,7 @@ export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
           episode
           airingAt
         }
-        airingSchedule(notYetAired: true, perPage: 50) {
+        airingSchedule(perPage: 50) {
           nodes {
             episode
             airingAt
