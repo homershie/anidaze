@@ -319,6 +319,7 @@ export default async function Home({
           week: t("viewMode.week"),
           month: t("viewMode.month"),
           showAdult: t("adultContent.show"),
+          allCountries: t("country.all"),
         }}
       />
       <div className="text-center sm:text-left mt-4">
@@ -626,7 +627,8 @@ async function MonthView({
   });
 
   // 格式化月份顯示
-  const monthText = new Intl.DateTimeFormat("zh-TW", {
+  const locale = await getLocale();
+  const monthText = new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "long",
   }).format(monthStart);

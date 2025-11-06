@@ -48,6 +48,7 @@
     "saturday": "土曜日"
   },
   "country": {
+    "all": "すべての国",
     "groups": {
       "chinese": "中国語圏",
       "asia": "その他のアジア",

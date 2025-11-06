@@ -7,12 +7,14 @@ import { cn } from "@/lib/utils";
 export function CountryTags({
   selectedCountry,
   countryOptions,
+  allCountriesText,
 }: {
   selectedCountry: string;
   countryOptions: Array<{
     group: string;
     countries: Array<{ code: string; name: string }>;
   }>;
+  allCountriesText: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,7 +46,7 @@ export function CountryTags({
           selectedCountry === "" && "bg-brand-blue-600 text-white"
         )}
       >
-        全部國家
+        {allCountriesText}
       </Button>
       {allCountries.map((country) => (
         <Button

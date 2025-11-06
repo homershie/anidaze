@@ -48,6 +48,7 @@
     "saturday": "Saturday"
   },
   "country": {
+    "all": "All Countries",
     "groups": {
       "chinese": "Chinese Regions",
       "asia": "Other Asia",

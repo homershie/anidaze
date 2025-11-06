@@ -18,6 +18,7 @@ interface ViewControlsProps {
     week: string;
     month: string;
     showAdult: string;
+    allCountries: string;
   };
 }
 
@@ -78,6 +79,7 @@ export function ViewControls({
           <CountryTags
             selectedCountry={selectedCountry}
             countryOptions={countryOptions}
+            allCountriesText={translations.allCountries}
           />
         </div>
       </div>

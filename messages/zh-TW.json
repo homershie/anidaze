@@ -48,6 +48,7 @@
     "saturday": "週六"
   },
   "country": {
+    "all": "全部國家",
     "groups": {
       "chinese": "中文地區",
       "asia": "亞洲其他地區",
