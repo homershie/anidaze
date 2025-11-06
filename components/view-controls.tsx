@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { CountryTags } from "@/components/country-tags";
 
@@ -62,7 +62,7 @@ export function ViewControls({
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Checkbox
+            <Switch
               id="showAdult"
               checked={showAdult}
               onCheckedChange={handleShowAdultChange}
@@ -84,4 +84,3 @@ export function ViewControls({
     </div>
   );
 }
-

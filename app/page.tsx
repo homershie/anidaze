@@ -19,6 +19,7 @@ import {
 } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 import { ViewControls } from "@/components/view-controls";
+import { HomeStatsWrapper } from "@/components/home-stats-wrapper";
 import { CalendarMediaItem } from "@/components/calendar-media-item";
 import { getGenreColor } from "@/lib/genre-colors";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -110,6 +111,13 @@ export default async function Home({
   const showAdultContent = showAdult === "true";
 
   const { season, year } = getCurrentSeason();
+
+  const seasonNames: Record<"WINTER" | "SPRING" | "SUMMER" | "FALL", string> = {
+    WINTER: t("season.winter"),
+    SPRING: t("season.spring"),
+    SUMMER: t("season.summer"),
+    FALL: t("season.fall"),
+  };
 
   // 並行獲取季節作品和長期播放作品
   const [seasonalMedia, ongoingMedia] = await Promise.all([
@@ -248,6 +256,18 @@ export default async function Home({
     }
   });
 
+  // 計算統計數據
+  const statsData = {
+    itemsWithTitlesCount: itemsWithTitles.length,
+    itemsWithTitlesCurrentSeasonCount: itemsWithTitles.filter(
+      (m) => m.isCurrentSeason
+    ).length,
+    itemsWithTitlesOngoingCount: itemsWithTitles.filter(
+      (m) => !m.isCurrentSeason
+    ).length,
+    season: seasonNames[season],
+  };
+
   return (
     <main>
       <ViewControls
@@ -261,6 +281,9 @@ export default async function Home({
           showAdult: t("adultContent.show"),
         }}
       />
+      <div className="text-center sm:text-left mt-4">
+        <HomeStatsWrapper statsData={statsData} />
+      </div>
 
       <div className="mt-4">
         {viewMode === "week" ? (
@@ -341,6 +364,7 @@ async function WeekView({
   return (
     <div className="space-y-6">
       <div className="text-sm text-muted-foreground mb-4">{weekRangeText}</div>
+
       {dayOrder.map((day) => {
         const dayMedia = groupedByDay[day];
         if (dayMedia.length === 0) return null;

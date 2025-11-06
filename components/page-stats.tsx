@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Separator } from "@/components/ui/separator";
 
 interface PageStatsProps {
   totalCount: number;
@@ -28,7 +27,6 @@ export function PageStats({
           season,
         })}
       </p>
-      <Separator className="my-4" />
     </>
   );
 }

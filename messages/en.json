@@ -149,5 +149,18 @@
   "seo": {
     "description": "AniDaze is your anime airing schedule tracker. Get detailed airing schedules for current season anime and ongoing series. Download iCal calendar files and stay updated with the latest anime information.",
     "keywords": "anime,airing schedule,anime calendar,AniList,MyAnimeList,anime tracker,seasonal anime,spring anime,summer anime,fall anime,winter anime"
+  },
+  "search": {
+    "toggle": "Search",
+    "title": "Search",
+    "back": "Back",
+    "placeholder": "Search anime...",
+    "submit": "Search",
+    "category": {
+      "all": "All",
+      "title": "Title",
+      "genre": "Genre",
+      "studio": "Studio"
+    }
   }
 }

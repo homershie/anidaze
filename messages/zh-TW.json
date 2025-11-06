@@ -149,5 +149,18 @@
   "seo": {
     "description": "動畫時日 AniDaze 是您的動畫播出時間追蹤工具，提供當前季節動畫和長期播放作品的詳細播出時間表。支援下載 iCal 日曆檔案，隨時掌握最新動畫資訊。",
     "keywords": "動畫,播出時間,動畫時程,AniList,MyAnimeList,動畫日曆,動畫追蹤,新番動畫,春季動畫,夏季動畫,秋季動畫,冬季動畫"
+  },
+  "search": {
+    "toggle": "搜尋",
+    "title": "搜尋",
+    "back": "返回",
+    "placeholder": "搜尋動畫...",
+    "submit": "搜尋",
+    "category": {
+      "all": "全部",
+      "title": "標題",
+      "genre": "類型",
+      "studio": "製作公司"
+    }
   }
 }
