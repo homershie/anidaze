@@ -47,11 +47,10 @@
 
 Vercel 會自動將以下環境變數加入你的專案：
 ```
-KV_URL
-KV_REST_API_URL
-KV_REST_API_TOKEN
-KV_REST_API_READ_ONLY_TOKEN
+REDIS_URL
 ```
+
+**注意**：新版 Vercel KV 使用 `REDIS_URL` 環境變數（舊版使用 `KV_REST_API_URL` 和 `KV_REST_API_TOKEN`）。
 
 ### 3. 設定環境變數
 
@@ -97,10 +96,12 @@ REVALIDATE_SECRET="your_secret_key_here"
 專案已經安裝以下套件：
 
 ```bash
-npm install @vercel/kv deepl-node
+npm install redis deepl-node
 ```
 
 如果尚未安裝，請執行上述命令。
+
+**注意**：新版 Vercel KV 使用 `redis` 套件作為客戶端（不再使用 `@vercel/kv`）。
 
 ### 5. 部署專案
 

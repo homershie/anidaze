@@ -107,7 +107,7 @@ AniDaze 是一個以「動畫日曆」與「追番清單」為核心的 Next.js 
 
 ### 工具與服務
 - date-fns、date-fns-tz（日期與時區）
-- @vercel/kv（Redis 客戶端）
+- redis（Redis 客戶端，用於 Vercel KV）
 - deepl-node（DeepL SDK）
 - （開發）@graphql-codegen/cli
 

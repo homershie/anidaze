@@ -1,8 +1,24 @@
-import { kv } from "@vercel/kv";
+import { createClient } from "redis";
 import { createHash } from "crypto";
 
+// Initialize Redis client with REDIS_URL
+// Vercel automatically provides this environment variable
+const redisClient = createClient({
+  url: process.env.REDIS_URL || "",
+});
+
+// Connect to Redis (lazy connection)
+let isConnected = false;
+async function getRedis() {
+  if (!isConnected) {
+    await redisClient.connect();
+    isConnected = true;
+  }
+  return redisClient;
+}
+
 /**
- * Translation cache using Vercel KV
+ * Translation cache using Vercel KV (Redis)
  *
  * Purpose:
  * - Cache translated text to reduce API calls
@@ -45,8 +61,9 @@ export async function getCachedTranslation(
   targetLang: string
 ): Promise<string | null> {
   try {
+    const redis = await getRedis();
     const key = getTranslationKey(text, sourceLang, targetLang);
-    const cached = await kv.get<string>(key);
+    const cached = await redis.get(key);
     return cached;
   } catch (error) {
     console.error("Error getting cached translation:", error);
@@ -68,9 +85,10 @@ export async function setCachedTranslation(
   targetLang: string
 ): Promise<void> {
   try {
+    const redis = await getRedis();
     const key = getTranslationKey(text, sourceLang, targetLang);
     // Store translation permanently (no expiration)
-    await kv.set(key, translation);
+    await redis.set(key, translation);
   } catch (error) {
     console.error("Error setting cached translation:", error);
   }
@@ -82,9 +100,10 @@ export async function setCachedTranslation(
  */
 export async function getMonthlyUsage(): Promise<number> {
   try {
+    const redis = await getRedis();
     const key = getUsageKey();
-    const usage = await kv.get<number>(key);
-    return usage || 0;
+    const usage = await redis.get(key);
+    return usage ? parseInt(usage, 10) : 0;
   } catch (error) {
     console.error("Error getting monthly usage:", error);
     return 0;
@@ -98,14 +117,15 @@ export async function getMonthlyUsage(): Promise<number> {
  */
 export async function incrementUsage(characters: number): Promise<number> {
   try {
+    const redis = await getRedis();
     const key = getUsageKey();
-    const newUsage = await kv.incrby(key, characters);
+    const newUsage = await redis.incrBy(key, characters);
 
     // Set expiration to end of next month to ensure cleanup
     const now = new Date();
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 1);
     const secondsUntilExpiry = Math.floor((nextMonth.getTime() - now.getTime()) / 1000);
-    await kv.expire(key, secondsUntilExpiry);
+    await redis.expire(key, secondsUntilExpiry);
 
     return newUsage;
   } catch (error) {
@@ -149,8 +169,9 @@ export async function canTranslate(textLength: number): Promise<boolean> {
  */
 export async function resetMonthlyUsage(): Promise<void> {
   try {
+    const redis = await getRedis();
     const key = getUsageKey();
-    await kv.set(key, 0);
+    await redis.set(key, "0");
     console.log(`Translation usage reset for ${key}`);
   } catch (error) {
     console.error("Error resetting monthly usage:", error);
@@ -163,15 +184,16 @@ export async function resetMonthlyUsage(): Promise<void> {
  */
 export async function clearTranslationCache(): Promise<void> {
   try {
+    const redis = await getRedis();
     // Get all translation keys
-    const keys = await kv.keys("translation:*");
+    const keys = await redis.keys("translation:*");
 
     if (keys.length > 0) {
       // Delete in batches to avoid timeout
       const batchSize = 100;
       for (let i = 0; i < keys.length; i += batchSize) {
         const batch = keys.slice(i, i + batchSize);
-        await Promise.all(batch.map(key => kv.del(key)));
+        await Promise.all(batch.map(key => redis.del(key)));
       }
       console.log(`Cleared ${keys.length} translation cache entries`);
     }
