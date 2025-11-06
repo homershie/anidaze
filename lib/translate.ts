@@ -86,7 +86,7 @@ export async function translateJaToZhTW(text: string): Promise<string> {
 
     // Step 5: Translate using DeepL API
     console.log(`Translating ${textLength} characters from Japanese to Chinese...`);
-    const result = await translatorInstance.translateText(text, sourceLang, "zh-Hant");
+    const result = await translatorInstance.translateText(text, sourceLang, "zh");
 
     const translatedText = result.text;
 
@@ -216,7 +216,7 @@ export async function batchTranslate(
     // Cache each result
     const translatedTexts = Array.isArray(results)
       ? results.map((r) => r.text)
-      : [results.text];
+      : [(results as deepl.TextResult).text];
 
     for (let i = 0; i < texts.length; i++) {
       await setCachedTranslation(
