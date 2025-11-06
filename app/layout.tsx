@@ -280,25 +280,19 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <div className="mx-auto max-w-full p-6">
-              <header className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <Logo
-                    width={180}
-                    height={54}
-                    priority
-                    className="hidden sm:block"
-                  />
-                  <h1 className="text-2xl font-bold sm:hidden">
-                    {t("app.title", { year, season: seasonNames[season] })}
-                  </h1>
+            <div className="mx-auto max-w-full p-6 p">
+              <header className="flex flex-wrap items-center sm:justify-between justify-center gap-4">
+                <div className="flex items-center gap-4 flex-shrink-0">
+                  <Logo width={180} height={54} priority className="block" />
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 flex-shrink-0">
                   <ThemeToggle />
                   <LocaleSwitcher />
                 </div>
               </header>
-              <HomeStatsWrapper statsData={statsData} />
+              <div className="text-center sm:text-left">
+                <HomeStatsWrapper statsData={statsData} />
+              </div>
               {children}
             </div>
           </NextIntlClientProvider>

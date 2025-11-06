@@ -252,13 +252,13 @@ export default async function TitlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="mb-4">
-        <Link href="/" className="text-sm text-blue-600 hover:underline">
+        <Link href="/" className="text-sm text-brand-red-600 hover:underline">
           {t("title.backToList")}
         </Link>
       </div>
 
       {/* Header */}
-      <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row items-start justify-between gap-4">
         <div className="flex-1">
           <h1 className="text-3xl font-bold">{title}</h1>
           {media.title.english && media.title.english !== title && (
@@ -269,7 +269,7 @@ export default async function TitlePage({
           )}
         </div>
         <a
-          className="rounded bg-black px-4 py-2 text-white text-sm hover:bg-gray-800"
+          className="rounded bg-brand-blue-600 px-4 py-2 text-white text-sm hover:bg-brand-blue-800"
           href={`/api/ics/${id}`}
         >
           {t("title.addToCalendar")}
@@ -280,7 +280,7 @@ export default async function TitlePage({
       <div className="grid gap-6 md:grid-cols-[200px_1fr]">
         {/* Cover Image */}
         {media.coverImage?.large && (
-          <div className="hidden md:block">
+          <div className="block">
             <Image
               src={media.coverImage.large}
               alt={title}
