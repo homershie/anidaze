@@ -7,6 +7,7 @@ import { SearchProvider } from "@/components/search-context";
 import { HeaderWrapper } from "@/components/header-wrapper";
 import { TypekitLoader } from "@/components/typekit-loader";
 import { getCurrentSeason } from "@/lib/time";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.scss";
 
 const geistSans = Geist({
@@ -143,6 +144,7 @@ export default async function RootLayout({
             </SearchProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
