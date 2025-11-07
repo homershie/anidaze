@@ -8,16 +8,18 @@ import {
 } from "@/lib/anilist";
 import { getCurrentSeason } from "@/lib/time";
 
-async function getAllSeasonalMedia(
+// 限制最多獲取的頁面數，避免 API 速率限制
+const MAX_PAGES = 3;
+
+async function getLimitedSeasonalMedia(
   season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
   seasonYear: number
 ): Promise<SeasonalMediaItem[]> {
   const allMedia: SeasonalMediaItem[] = [];
   let page = 1;
   const perPage = 50;
-  let hasNextPage = true;
 
-  while (hasNextPage) {
+  while (page <= MAX_PAGES) {
     try {
       const data = await anilist<SeasonalMediaResponse>(
         SEASONAL_MEDIA_QUERY,
@@ -32,24 +34,32 @@ async function getAllSeasonalMedia(
       );
 
       allMedia.push(...data.Page.media);
-      hasNextPage = data.Page.pageInfo.hasNextPage;
+
+      if (!data.Page.pageInfo.hasNextPage) {
+        break;
+      }
+
       page++;
+
+      // 添加小延遲以避免速率限制
+      if (page <= MAX_PAGES) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
     } catch (error) {
-      console.error(`Failed to fetch page ${page}:`, error);
-      hasNextPage = false;
+      console.error(`Failed to fetch seasonal page ${page}:`, error);
+      break;
     }
   }
 
   return allMedia;
 }
 
-async function getOngoingMedia(): Promise<SeasonalMediaItem[]> {
+async function getLimitedOngoingMedia(): Promise<SeasonalMediaItem[]> {
   const allMedia: SeasonalMediaItem[] = [];
   let page = 1;
   const perPage = 50;
-  let hasNextPage = true;
 
-  while (hasNextPage) {
+  while (page <= MAX_PAGES) {
     try {
       const data = await anilist<SeasonalMediaResponse>(
         ONGOING_MEDIA_QUERY,
@@ -61,11 +71,20 @@ async function getOngoingMedia(): Promise<SeasonalMediaItem[]> {
       );
 
       allMedia.push(...data.Page.media);
-      hasNextPage = data.Page.pageInfo.hasNextPage;
+
+      if (!data.Page.pageInfo.hasNextPage) {
+        break;
+      }
+
       page++;
+
+      // 添加小延遲以避免速率限制
+      if (page <= MAX_PAGES) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
     } catch (error) {
       console.error(`Failed to fetch ongoing page ${page}:`, error);
-      hasNextPage = false;
+      break;
     }
   }
 
@@ -76,49 +95,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://anidaze.com";
   const { season, year } = getCurrentSeason();
 
-  // 獲取當前季度和長期播放的動畫
-  const [seasonalMedia, ongoingMedia] = await Promise.all([
-    getAllSeasonalMedia(season, year),
-    getOngoingMedia(),
-  ]);
+  try {
+    // 獲取當前季度的動畫（限制頁數）
+    const seasonalMedia = await getLimitedSeasonalMedia(season, year);
 
-  // 合併並去重（使用 Set）
-  const allMediaIds = new Set<number>();
-  [...seasonalMedia, ...ongoingMedia].forEach((media) => {
-    allMediaIds.add(media.id);
-  });
+    // 添加延遲
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
-  // 建立首頁條目
-  const homeEntry: MetadataRoute.Sitemap[0] = {
-    url: siteUrl,
-    lastModified: new Date(),
-    changeFrequency: "hourly",
-    priority: 1.0,
-    alternates: {
-      languages: {
-        "zh-TW": siteUrl,
-        ja: siteUrl,
-        en: siteUrl,
-      },
-    },
-  };
+    // 獲取長期播放的動畫（限制頁數）
+    const ongoingMedia = await getLimitedOngoingMedia();
 
-  // 建立動畫詳情頁條目
-  const mediaEntries: MetadataRoute.Sitemap = Array.from(allMediaIds).map(
-    (id) => ({
-      url: `${siteUrl}/title/${id}`,
+    // 合併並去重（使用 Set）
+    const allMediaIds = new Set<number>();
+    [...seasonalMedia, ...ongoingMedia].forEach((media) => {
+      allMediaIds.add(media.id);
+    });
+
+    // 建立首頁條目
+    const homeEntry: MetadataRoute.Sitemap[0] = {
+      url: siteUrl,
       lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.8,
-      alternates: {
-        languages: {
-          "zh-TW": `${siteUrl}/title/${id}`,
-          ja: `${siteUrl}/title/${id}`,
-          en: `${siteUrl}/title/${id}`,
-        },
-      },
-    })
-  );
+      changeFrequency: "hourly",
+      priority: 1.0,
+    };
 
-  return [homeEntry, ...mediaEntries];
+    // 建立動畫詳情頁條目
+    const mediaEntries: MetadataRoute.Sitemap = Array.from(allMediaIds).map(
+      (id) => ({
+        url: `${siteUrl}/title/${id}`,
+        lastModified: new Date(),
+        changeFrequency: "daily" as const,
+        priority: 0.8,
+      })
+    );
+
+    return [homeEntry, ...mediaEntries];
+  } catch (error) {
+    console.error("Failed to generate sitemap:", error);
+    // 如果失敗，至少返回首頁
+    return [
+      {
+        url: siteUrl,
+        lastModified: new Date(),
+        changeFrequency: "hourly",
+        priority: 1.0,
+      },
+    ];
+  }
 }
