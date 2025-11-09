@@ -338,5 +338,9 @@
     // 字體順序：dinosaur (英文) -> GenSenRounded2 (繁體/日文) -> Geist Sans -> 系統後備
     font-family: "dinosaur", "GenSenRounded2", var(--font-geist-sans),
       sans-serif;
+    // 強制保持垂直滾動條可見，覆蓋 Radix UI 的 overflow:hidden 行為
+    overflow-y: scroll !important;
+    // 防止 Radix UI 添加 padding-right 導致內容位移
+    margin-right: 0 !important;
   }
 }
