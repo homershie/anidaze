@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer";
 import { TypekitLoader } from "@/components/typekit-loader";
 import { getCurrentSeason } from "@/lib/time";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import "./globals.scss";
 
 const geistSans = Geist({
@@ -147,6 +148,7 @@ export default async function RootLayout({
             </SearchProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
+        <GoogleAnalytics />
         <SpeedInsights />
       </body>
     </html>
