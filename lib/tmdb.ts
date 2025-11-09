@@ -127,6 +127,14 @@ export async function searchTMDB(
     } catch {
       // Ignore error reading response body
     }
+    if (res.status === 429) {
+      console.warn(errorMessage);
+      return {
+        results: [],
+        total_results: 0,
+        total_pages: 0,
+      };
+    }
     throw new Error(errorMessage);
   }
 
@@ -175,6 +183,10 @@ export async function getTMDBAlternativeTitles(
     } catch {
       // Ignore error reading response body
     }
+    if (res.status === 429) {
+      console.warn(errorMessage);
+      return null;
+    }
     throw new Error(errorMessage);
   }
 
@@ -220,6 +232,10 @@ export async function getTMDBTranslations(
       }
     } catch {
       // Ignore error reading response body
+    }
+    if (res.status === 429) {
+      console.warn(errorMessage);
+      return null;
     }
     throw new Error(errorMessage);
   }
