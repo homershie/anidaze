@@ -21,6 +21,7 @@ import { getBestTitle } from "@/lib/title";
 import { ViewControls } from "@/components/view-controls";
 import { HomeStatsWrapper } from "@/components/home-stats-wrapper";
 import { CalendarMediaItem } from "@/components/calendar-media-item";
+import { ClearSearchButton } from "@/components/clear-search-button";
 import { getGenreColor } from "@/lib/genre-colors";
 import { getTranslations, getLocale } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
@@ -104,6 +105,8 @@ export default async function Home({
     showAdult?: string;
     sortBy?: "airingTime" | "title" | "score" | "popularity";
     sortOrder?: "asc" | "desc";
+    q?: string;
+    category?: "all" | "title" | "genre" | "studio";
   }>;
 }) {
   const t = await getTranslations();
@@ -114,6 +117,8 @@ export default async function Home({
     showAdult,
     sortBy = "airingTime",
     sortOrder = "asc",
+    q: searchQuery,
+    category: searchCategory = "all",
   } = params;
 
   const showAdultContent = showAdult === "true";
@@ -201,6 +206,53 @@ export default async function Home({
   // 根據 showAdult 過濾成人內容
   if (!showAdultContent) {
     filteredItems = filteredItems.filter((m) => !m.isAdult);
+  }
+
+  // 根據搜尋查詢過濾
+  if (searchQuery && searchQuery.trim()) {
+    const query = searchQuery.toLowerCase().trim();
+    filteredItems = filteredItems.filter((item) => {
+      switch (searchCategory) {
+        case "title":
+          // 只搜尋標題（支援多語言：romaji, english, native, synonyms, displayTitle）
+          const matchRomaji = item.title.romaji?.toLowerCase().includes(query);
+          const matchEnglish = item.title.english?.toLowerCase().includes(query);
+          const matchNative = item.title.native?.toLowerCase().includes(query);
+          const matchSynonyms = item.synonyms?.some((synonym) =>
+            synonym?.toLowerCase().includes(query)
+          );
+          const matchDisplay = item.displayTitle.toLowerCase().includes(query);
+          return matchRomaji || matchEnglish || matchNative || matchSynonyms || matchDisplay;
+        case "genre":
+          // 只搜尋類型
+          return item.genres?.some((genre) =>
+            genre?.toLowerCase().includes(query)
+          );
+        case "studio":
+          // 只搜尋製作公司
+          return item.studios?.nodes?.some((studio) =>
+            studio?.name?.toLowerCase().includes(query)
+          );
+        case "all":
+        default:
+          // 搜尋標題（多語言）、類型和製作公司
+          const matchTitleRomaji = item.title.romaji?.toLowerCase().includes(query);
+          const matchTitleEnglish = item.title.english?.toLowerCase().includes(query);
+          const matchTitleNative = item.title.native?.toLowerCase().includes(query);
+          const matchTitleSynonyms = item.synonyms?.some((synonym) =>
+            synonym?.toLowerCase().includes(query)
+          );
+          const matchTitleDisplay = item.displayTitle.toLowerCase().includes(query);
+          const matchGenre = item.genres?.some((genre) =>
+            genre?.toLowerCase().includes(query)
+          );
+          const matchStudio = item.studios?.nodes?.some((studio) =>
+            studio?.name?.toLowerCase().includes(query)
+          );
+          return matchTitleRomaji || matchTitleEnglish || matchTitleNative ||
+                 matchTitleSynonyms || matchTitleDisplay || matchGenre || matchStudio;
+      }
+    });
   }
 
   // 根據視圖模式過濾時間範圍（固定為當前週/月）
@@ -344,9 +396,24 @@ export default async function Home({
           sortDesc: t("sort.desc"),
         }}
       />
-      <div className="text-center sm:text-left mt-4">
-        <HomeStatsWrapper statsData={statsData} />
-      </div>
+
+      {searchQuery ? (
+        <div className="text-center sm:text-left mt-4">
+          <div className="flex items-center justify-center sm:justify-start flex-wrap gap-2">
+            <p className="text-sm text-muted-foreground">
+              {t("search.results", {
+                query: searchQuery,
+                count: timeFilteredItems.length,
+              })}
+            </p>
+            <ClearSearchButton clearText={t("search.clear")} />
+          </div>
+        </div>
+      ) : (
+        <div className="text-center sm:text-left mt-4">
+          <HomeStatsWrapper statsData={statsData} />
+        </div>
+      )}
 
       <div className="mt-4">
         {viewMode === "list" ? (

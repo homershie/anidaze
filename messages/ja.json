@@ -167,6 +167,8 @@
     "back": "戻る",
     "placeholder": "アニメを検索...",
     "submit": "検索",
+    "results": "「{query}」の検索結果：{count} 件",
+    "clear": "検索をクリア",
     "category": {
       "all": "すべて",
       "title": "タイトル",

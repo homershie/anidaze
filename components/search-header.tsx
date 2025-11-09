@@ -17,13 +17,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSearchContext } from "@/components/search-context";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export function SearchHeader() {
   const t = useTranslations("search");
   const { setIsSearchMode } = useSearchContext();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  // 從 URL 參數初始化搜尋狀態
+  useEffect(() => {
+    const query = searchParams.get("q") || "";
+    const category = searchParams.get("category") || "all";
+    setSearchQuery(query);
+    setSelectedCategory(category);
+  }, [searchParams]);
 
   const categories = [
     { value: "all", label: t("category.all") },
@@ -38,12 +49,22 @@ export function SearchHeader() {
 
   const handleBack = () => {
     setIsSearchMode(false);
+    // 返回時清除搜尋參數
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("q");
+    params.delete("category");
+    router.push(`/?${params.toString()}`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: 實作搜尋邏輯
-    console.log("Search:", searchQuery, "Category:", selectedCategory);
+    if (!searchQuery.trim()) return;
+
+    // 通過 URL 參數傳遞搜尋查詢
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("q", searchQuery);
+    params.set("category", selectedCategory);
+    router.push(`/?${params.toString()}`);
   };
 
   return (

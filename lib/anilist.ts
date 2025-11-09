@@ -186,6 +186,12 @@ export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
           }
         }
         genres
+        studios {
+          nodes {
+            id
+            name
+          }
+        }
         averageScore
         popularity
       }
@@ -233,6 +239,12 @@ export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
           }
         }
         genres
+        studios {
+          nodes {
+            id
+            name
+          }
+        }
         averageScore
         popularity
       }
@@ -359,6 +371,12 @@ export type SeasonalMediaItem = {
     } | null> | null;
   } | null;
   genres?: Array<string | null> | null;
+  studios?: {
+    nodes: Array<{
+      id: number;
+      name: string;
+    } | null> | null;
+  } | null;
   averageScore?: number | null;
   popularity?: number | null;
 };

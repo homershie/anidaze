@@ -167,6 +167,8 @@
     "back": "Back",
     "placeholder": "Search anime...",
     "submit": "Search",
+    "results": "Found {count} results for \"{query}\"",
+    "clear": "Clear search",
     "category": {
       "all": "All",
       "title": "Title",

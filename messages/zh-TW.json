@@ -167,6 +167,8 @@
     "back": "返回",
     "placeholder": "搜尋動畫...",
     "submit": "搜尋",
+    "results": "搜尋「{query}」找到 {count} 個結果",
+    "clear": "清除搜尋",
     "category": {
       "all": "全部",
       "title": "標題",
