@@ -10,6 +10,33 @@ import { getCurrentSeason } from "@/lib/time";
 
 // 限制最多獲取的頁面數，避免 API 速率限制
 const MAX_PAGES = 3;
+const RETRY_ATTEMPTS = 2;
+const RETRY_DELAY_MS = 500;
+
+async function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry<T>(fn: () => Promise<T>) {
+  let attempt = 0;
+  let lastError: unknown;
+
+  while (attempt <= RETRY_ATTEMPTS) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (attempt === RETRY_ATTEMPTS) {
+        break;
+      }
+      const backoff = RETRY_DELAY_MS * Math.pow(2, attempt);
+      await wait(backoff);
+    }
+    attempt += 1;
+  }
+
+  throw lastError;
+}
 
 async function getLimitedSeasonalMedia(
   season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
@@ -21,16 +48,18 @@ async function getLimitedSeasonalMedia(
 
   while (page <= MAX_PAGES) {
     try {
-      const data = await anilist<SeasonalMediaResponse>(
-        SEASONAL_MEDIA_QUERY,
-        {
-          page,
-          perPage,
-          season,
-          seasonYear,
-          status: ["RELEASING", "NOT_YET_RELEASED"],
-        },
-        { next: { revalidate: 60 * 60 * 6, tags: ["seasonal"] } }
+      const data = await fetchWithRetry(() =>
+        anilist<SeasonalMediaResponse>(
+          SEASONAL_MEDIA_QUERY,
+          {
+            page,
+            perPage,
+            season,
+            seasonYear,
+            status: ["RELEASING", "NOT_YET_RELEASED"],
+          },
+          { next: { revalidate: 60 * 60 * 6, tags: ["seasonal"] } }
+        )
       );
 
       allMedia.push(...data.Page.media);
@@ -43,7 +72,7 @@ async function getLimitedSeasonalMedia(
 
       // 添加小延遲以避免速率限制
       if (page <= MAX_PAGES) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await wait(100);
       }
     } catch (error) {
       console.error(`Failed to fetch seasonal page ${page}:`, error);
@@ -61,13 +90,15 @@ async function getLimitedOngoingMedia(): Promise<SeasonalMediaItem[]> {
 
   while (page <= MAX_PAGES) {
     try {
-      const data = await anilist<SeasonalMediaResponse>(
-        ONGOING_MEDIA_QUERY,
-        {
-          page,
-          perPage,
-        },
-        { next: { revalidate: 60 * 60 * 6, tags: ["ongoing"] } }
+      const data = await fetchWithRetry(() =>
+        anilist<SeasonalMediaResponse>(
+          ONGOING_MEDIA_QUERY,
+          {
+            page,
+            perPage,
+          },
+          { next: { revalidate: 60 * 60 * 6, tags: ["ongoing"] } }
+        )
       );
 
       allMedia.push(...data.Page.media);
@@ -80,7 +111,7 @@ async function getLimitedOngoingMedia(): Promise<SeasonalMediaItem[]> {
 
       // 添加小延遲以避免速率限制
       if (page <= MAX_PAGES) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await wait(100);
       }
     } catch (error) {
       console.error(`Failed to fetch ongoing page ${page}:`, error);
