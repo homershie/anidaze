@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 type SortBy = "airingTime" | "title" | "score" | "popularity";
 type SortOrder = "asc" | "desc";
@@ -40,9 +42,9 @@ export function SortControl({
     router.push(`/?${params.toString()}`);
   };
 
-  const handleSortOrderChange = (value: string) => {
+  const toggleSortOrder = () => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("sortOrder", value);
+    params.set("sortOrder", sortOrder === "asc" ? "desc" : "asc");
     router.push(`/?${params.toString()}`);
   };
 
@@ -62,15 +64,19 @@ export function SortControl({
           <SelectItem value="popularity">{translations.popularity}</SelectItem>
         </SelectContent>
       </Select>
-      <Select value={sortOrder} onValueChange={handleSortOrderChange}>
-        <SelectTrigger className="w-24" aria-label="Sort order">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="asc">{translations.asc}</SelectItem>
-          <SelectItem value="desc">{translations.desc}</SelectItem>
-        </SelectContent>
-      </Select>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={toggleSortOrder}
+        aria-label={sortOrder === "asc" ? translations.asc : translations.desc}
+        title={sortOrder === "asc" ? translations.asc : translations.desc}
+      >
+        {sortOrder === "asc" ? (
+          <ArrowUp className="h-4 w-4" />
+        ) : (
+          <ArrowDown className="h-4 w-4" />
+        )}
+      </Button>
     </div>
   );
 }

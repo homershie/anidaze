@@ -98,7 +98,7 @@ export function ViewControls({
         </div>
       </div>
 
-      {/* 只在列表视图显示排序控件 */}
+      {/* 只在列表視圖顯示排序控制 */}
       {viewMode === "list" && (
         <div className="flex justify-center sm:justify-start">
           <SortControl

@@ -365,7 +365,7 @@ export default async function Home({
   );
 }
 
-// 列表視圖組件（原週視圖）
+// 列表視圖組件
 async function ListView({
   media,
   sortBy,
@@ -417,144 +417,76 @@ async function ListView({
     });
   };
 
-  // 按星期分組作品
-  // 0: 週日, 1: 週一, ..., 6: 週六, 7: 未定
-  const groupedByDay: Record<number, typeof media> = {
-    0: [],
-    1: [],
-    2: [],
-    3: [],
-    4: [],
-    5: [],
-    6: [],
-    7: [], // 未定
-  };
-
-  media.forEach((mediaItem) => {
-    const nextEpisode = mediaItem.nextAiringEpisode;
-    if (nextEpisode?.airingAt) {
-      const dayOfWeek = getDayOfWeek(nextEpisode.airingAt);
-      groupedByDay[dayOfWeek].push(mediaItem);
-    } else {
-      groupedByDay[7].push(mediaItem);
-    }
-  });
-
-  // 對每個分組進行排序
-  Object.keys(groupedByDay).forEach((day) => {
-    const dayNum = parseInt(day);
-    groupedByDay[dayNum] = sortMedia(
-      groupedByDay[dayNum],
-      sortBy,
-      sortOrder
-    );
-  });
-
-  // 星期順序：週日、週一、...、週六、未定
-  const dayOrder = [0, 1, 2, 3, 4, 5, 6, 7];
-
-  const dayNameKeys: Record<
-    number,
-    | "day.sunday"
-    | "day.monday"
-    | "day.tuesday"
-    | "day.wednesday"
-    | "day.thursday"
-    | "day.friday"
-    | "day.saturday"
-  > = {
-    0: "day.sunday",
-    1: "day.monday",
-    2: "day.tuesday",
-    3: "day.wednesday",
-    4: "day.thursday",
-    5: "day.friday",
-    6: "day.saturday",
-  };
+  // 對所有作品進行排序
+  const sortedMedia = sortMedia(media, sortBy, sortOrder);
 
   return (
-    <div className="space-y-6">
-      {dayOrder.map((day) => {
-        const dayMedia = groupedByDay[day];
-        if (dayMedia.length === 0) return null;
-
-        const dayName = day === 7 ? t("day.undecided") : t(dayNameKeys[day]);
-
-        return (
-          <div key={day} className="space-y-3">
-            <h3 className="text-lg font-semibold">
-              {dayName} ({dayMedia.length})
-            </h3>
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {dayMedia.map((mediaItem) => {
-                const nextEpisode = mediaItem.nextAiringEpisode;
-                return (
-                  <li key={mediaItem.id} className="rounded-2xl border p-4">
-                    <div className="flex items-start gap-3">
-                      {mediaItem.coverImage?.large && (
-                        <Image
-                          src={mediaItem.coverImage.large}
-                          alt={mediaItem.displayTitle}
-                          width={72}
-                          height={102}
-                          className="h-[102px] w-[72px] rounded object-cover"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <div className="text-base font-semibold">
-                            {mediaItem.displayTitle}
-                          </div>
-                          {!mediaItem.isCurrentSeason && (
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded dark:text-gray-300 dark:bg-gray-800">
-                              {t("media.ongoing")}
-                            </span>
-                          )}
-                        </div>
-                        {nextEpisode ? (
-                          <>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                              {t("media.episode", {
-                                episode: nextEpisode.episode,
-                              })}
-                            </div>
-                            <div className="text-sm mt-1">
-                              {t("media.nextAiring")}
-                              {formatLocal(
-                                new Date(nextEpisode.airingAt * 1000)
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <div className="text-sm text-gray-500 mt-1">
-                            {mediaItem.status === "NOT_YET_RELEASED"
-                              ? t("media.notYetReleased")
-                              : t("media.airingTimeUndecided")}
-                          </div>
-                        )}
-                        <div className="mt-2 flex items-center gap-3">
-                          <Link
-                            href={`/title/${mediaItem.id}`}
-                            className="text-sm text-brand-red-500 hover:underline"
-                          >
-                            {t("media.viewDetails")}
-                          </Link>
-                          <a
-                            href={`/api/ics/${mediaItem.id}`}
-                            className="text-sm text-brand-blue-600 hover:underline"
-                          >
-                            {t("media.downloadIcal")}
-                          </a>
-                        </div>
-                      </div>
+    <div className="space-y-4">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {sortedMedia.map((mediaItem) => {
+          const nextEpisode = mediaItem.nextAiringEpisode;
+          return (
+            <li key={mediaItem.id} className="rounded-2xl border p-4">
+              <div className="flex items-start gap-3">
+                {mediaItem.coverImage?.large && (
+                  <Image
+                    src={mediaItem.coverImage.large}
+                    alt={mediaItem.displayTitle}
+                    width={72}
+                    height={102}
+                    className="h-[102px] w-[72px] rounded object-cover"
+                  />
+                )}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold">
+                      {mediaItem.displayTitle}
                     </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        );
-      })}
+                    {!mediaItem.isCurrentSeason && (
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded dark:text-gray-300 dark:bg-gray-800">
+                        {t("media.ongoing")}
+                      </span>
+                    )}
+                  </div>
+                  {nextEpisode ? (
+                    <>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {t("media.episode", {
+                          episode: nextEpisode.episode,
+                        })}
+                      </div>
+                      <div className="text-sm mt-1">
+                        {t("media.nextAiring")}
+                        {formatLocal(new Date(nextEpisode.airingAt * 1000))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-sm text-gray-500 mt-1">
+                      {mediaItem.status === "NOT_YET_RELEASED"
+                        ? t("media.notYetReleased")
+                        : t("media.airingTimeUndecided")}
+                    </div>
+                  )}
+                  <div className="mt-2 flex items-center gap-3">
+                    <Link
+                      href={`/title/${mediaItem.id}`}
+                      className="text-sm text-brand-red-500 hover:underline"
+                    >
+                      {t("media.viewDetails")}
+                    </Link>
+                    <a
+                      href={`/api/ics/${mediaItem.id}`}
+                      className="text-sm text-brand-blue-600 hover:underline"
+                    >
+                      {t("media.downloadIcal")}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
