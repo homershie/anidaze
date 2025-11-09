@@ -15,6 +15,7 @@ import {
   getWeekRange,
   getMonthRange,
   getDateFromTimestamp,
+  getHourFromTimestamp,
 } from "@/lib/time";
 import { getBestTitle } from "@/lib/title";
 import { ViewControls } from "@/components/view-controls";
@@ -99,13 +100,21 @@ export default async function Home({
 }: {
   searchParams: Promise<{
     country?: string;
-    viewMode?: "week" | "month";
+    viewMode?: "list" | "week" | "month";
     showAdult?: string;
+    sortBy?: "airingTime" | "title" | "score" | "popularity";
+    sortOrder?: "asc" | "desc";
   }>;
 }) {
   const t = await getTranslations();
   const params = await searchParams;
-  const { country: selectedCountry, viewMode = "week", showAdult } = params;
+  const {
+    country: selectedCountry,
+    viewMode = "list",
+    showAdult,
+    sortBy = "airingTime",
+    sortOrder = "asc",
+  } = params;
 
   const showAdultContent = showAdult === "true";
 
@@ -196,7 +205,10 @@ export default async function Home({
 
   // 根據視圖模式過濾時間範圍（固定為當前週/月）
   let timeFilteredItems = filteredItems;
-  if (viewMode === "week") {
+  if (viewMode === "list") {
+    // 列表視圖：顯示所有作品，不進行時間過濾
+    timeFilteredItems = filteredItems;
+  } else if (viewMode === "week") {
     // 週視圖：只顯示有下一次播出時間且在本週範圍內的作品
     timeFilteredItems = filteredItems.filter((item) => {
       const nextEpisode = item.nextAiringEpisode;
@@ -315,11 +327,21 @@ export default async function Home({
         showAdult={showAdultContent}
         selectedCountry={selectedCountry || ""}
         countryOptions={countrySelectOptions}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
         translations={{
+          list: t("viewMode.list"),
           week: t("viewMode.week"),
           month: t("viewMode.month"),
           showAdult: t("adultContent.show"),
           allCountries: t("country.all"),
+          sortLabel: t("sort.label"),
+          sortAiringTime: t("sort.airingTime"),
+          sortTitle: t("sort.title"),
+          sortScore: t("sort.score"),
+          sortPopularity: t("sort.popularity"),
+          sortAsc: t("sort.asc"),
+          sortDesc: t("sort.desc"),
         }}
       />
       <div className="text-center sm:text-left mt-4">
@@ -327,7 +349,13 @@ export default async function Home({
       </div>
 
       <div className="mt-4">
-        {viewMode === "week" ? (
+        {viewMode === "list" ? (
+          <ListView
+            media={timeFilteredItems}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+          />
+        ) : viewMode === "week" ? (
           <WeekView media={timeFilteredItems} weekOffset={0} />
         ) : (
           <MonthView media={timeFilteredItems} monthOffset={0} />
@@ -337,10 +365,11 @@ export default async function Home({
   );
 }
 
-// 週視圖組件
-async function WeekView({
+// 列表視圖組件（原週視圖）
+async function ListView({
   media,
-  weekOffset,
+  sortBy,
+  sortOrder,
 }: {
   media: Array<
     SeasonalMediaItem & {
@@ -349,10 +378,44 @@ async function WeekView({
       isAdult: boolean;
     }
   >;
-  weekOffset: number;
+  sortBy: "airingTime" | "title" | "score" | "popularity";
+  sortOrder: "asc" | "desc";
 }) {
   const t = await getTranslations();
-  const { start, end } = getWeekRange(weekOffset);
+
+  // 排序函數
+  const sortMedia = (
+    items: typeof media,
+    by: typeof sortBy,
+    order: typeof sortOrder
+  ) => {
+    return [...items].sort((a, b) => {
+      let compareValue = 0;
+
+      switch (by) {
+        case "airingTime":
+          const aTime = a.nextAiringEpisode?.airingAt ?? Infinity;
+          const bTime = b.nextAiringEpisode?.airingAt ?? Infinity;
+          compareValue = aTime - bTime;
+          break;
+        case "title":
+          compareValue = a.displayTitle.localeCompare(b.displayTitle);
+          break;
+        case "score":
+          const aScore = a.averageScore ?? -1;
+          const bScore = b.averageScore ?? -1;
+          compareValue = bScore - aScore; // 默認高分在前
+          break;
+        case "popularity":
+          const aPopularity = a.popularity ?? -1;
+          const bPopularity = b.popularity ?? -1;
+          compareValue = bPopularity - aPopularity; // 默認高人氣在前
+          break;
+      }
+
+      return order === "asc" ? compareValue : -compareValue;
+    });
+  };
 
   // 按星期分組作品
   // 0: 週日, 1: 週一, ..., 6: 週六, 7: 未定
@@ -377,6 +440,16 @@ async function WeekView({
     }
   });
 
+  // 對每個分組進行排序
+  Object.keys(groupedByDay).forEach((day) => {
+    const dayNum = parseInt(day);
+    groupedByDay[dayNum] = sortMedia(
+      groupedByDay[dayNum],
+      sortBy,
+      sortOrder
+    );
+  });
+
   // 星期順序：週日、週一、...、週六、未定
   const dayOrder = [0, 1, 2, 3, 4, 5, 6, 7];
 
@@ -399,13 +472,8 @@ async function WeekView({
     6: "day.saturday",
   };
 
-  // 格式化週範圍顯示
-  const weekRangeText = `${formatLocal(start)} - ${formatLocal(end)}`;
-
   return (
     <div className="space-y-6">
-      <div className="text-sm text-muted-foreground mb-4">{weekRangeText}</div>
-
       {dayOrder.map((day) => {
         const dayMedia = groupedByDay[day];
         if (dayMedia.length === 0) return null;
@@ -487,6 +555,143 @@ async function WeekView({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// 週視圖組件（按時間段顯示）
+async function WeekView({
+  media,
+  weekOffset,
+}: {
+  media: Array<
+    SeasonalMediaItem & {
+      displayTitle: string;
+      isCurrentSeason: boolean;
+      isAdult: boolean;
+    }
+  >;
+  weekOffset: number;
+}) {
+  const t = await getTranslations();
+  const { start, end } = getWeekRange(weekOffset);
+
+  // 按小時和星期分組作品
+  // hourByDay[hour][dayOfWeek] = [...media]
+  const hourByDay: Record<number, Record<number, typeof media>> = {};
+
+  media.forEach((mediaItem) => {
+    const nextEpisode = mediaItem.nextAiringEpisode;
+    if (nextEpisode?.airingAt) {
+      const hour = getHourFromTimestamp(nextEpisode.airingAt);
+      const dayOfWeek = getDayOfWeek(nextEpisode.airingAt);
+
+      if (!hourByDay[hour]) {
+        hourByDay[hour] = {};
+      }
+      if (!hourByDay[hour][dayOfWeek]) {
+        hourByDay[hour][dayOfWeek] = [];
+      }
+      hourByDay[hour][dayOfWeek].push(mediaItem);
+    }
+  });
+
+  // 獲取所有有動畫的小時並排序
+  const hours = Object.keys(hourByDay)
+    .map((h) => parseInt(h))
+    .sort((a, b) => a - b);
+
+  const dayNameKeys: Record<number, string> = {
+    0: "day.sunday",
+    1: "day.monday",
+    2: "day.tuesday",
+    3: "day.wednesday",
+    4: "day.thursday",
+    5: "day.friday",
+    6: "day.saturday",
+  };
+
+  // 格式化週範圍顯示（只顯示日期部分）
+  const locale = await getLocale();
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    timeZone: process.env.TIMEZONE || "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  // 週六的日期（start + 6天）
+  const endDate = new Date(start);
+  endDate.setUTCDate(endDate.getUTCDate() + 6);
+  const weekRangeText = `${dateFormatter.format(start)} - ${dateFormatter.format(endDate)}`;
+
+  return (
+    <div className="space-y-4">
+      <div className="text-sm text-muted-foreground mb-4">{weekRangeText}</div>
+
+      <div className="overflow-x-auto">
+        <div className="inline-block min-w-full">
+          {/* 表頭：星期 */}
+          <div className="grid grid-cols-8 gap-px border-b mb-2">
+            <div className="p-2 text-center text-sm font-medium">時間</div>
+            {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+              <div key={day} className="p-2 text-center text-sm font-medium">
+                {t(
+                  dayNameKeys[day] as
+                    | "day.sunday"
+                    | "day.monday"
+                    | "day.tuesday"
+                    | "day.wednesday"
+                    | "day.thursday"
+                    | "day.friday"
+                    | "day.saturday"
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* 時間段行 */}
+          {hours.map((hour) => (
+            <div key={hour} className="grid grid-cols-8 gap-px border-b">
+              {/* 時間標籤 */}
+              <div className="p-2 text-sm font-medium bg-muted/30 flex items-center justify-center">
+                {String(hour).padStart(2, "0")}:00
+              </div>
+
+              {/* 每天的動畫 */}
+              {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+                const dayMedia = hourByDay[hour]?.[day] || [];
+                return (
+                  <div key={day} className="p-2 border-r min-h-[80px]">
+                    <div className="space-y-1">
+                      {dayMedia.map((mediaItem) => {
+                        const color = getGenreColor(mediaItem.genres);
+                        return (
+                          <CalendarMediaItem
+                            key={mediaItem.id}
+                            mediaItem={mediaItem}
+                            episode={
+                              mediaItem.nextAiringEpisode?.episode || 1
+                            }
+                            color={color}
+                            translations={{
+                              episode: t("media.episode", {
+                                episode:
+                                  mediaItem.nextAiringEpisode?.episode || 1,
+                              }),
+                              viewDetails: t("media.viewDetails"),
+                              downloadIcal: t("media.downloadIcal"),
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

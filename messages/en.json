@@ -7,8 +7,18 @@
     "adult": "Adults ({count})"
   },
   "viewMode": {
+    "list": "List",
     "week": "Week",
     "month": "Month"
+  },
+  "sort": {
+    "label": "Sort by",
+    "airingTime": "Airing Time",
+    "title": "Title",
+    "score": "Score",
+    "popularity": "Popularity",
+    "asc": "Ascending",
+    "desc": "Descending"
   },
   "adultContent": {
     "show": "Show adult content"

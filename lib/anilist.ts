@@ -186,6 +186,8 @@ export const SEASONAL_MEDIA_QUERY = /* GraphQL */ `
           }
         }
         genres
+        averageScore
+        popularity
       }
     }
   }
@@ -231,6 +233,8 @@ export const ONGOING_MEDIA_QUERY = /* GraphQL */ `
           }
         }
         genres
+        averageScore
+        popularity
       }
     }
   }
@@ -355,6 +359,8 @@ export type SeasonalMediaItem = {
     } | null> | null;
   } | null;
   genres?: Array<string | null> | null;
+  averageScore?: number | null;
+  popularity?: number | null;
 };
 
 export type SeasonalMediaResponse = {

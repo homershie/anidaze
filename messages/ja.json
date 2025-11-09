@@ -7,8 +7,18 @@
     "adult": "成人向け ({count})"
   },
   "viewMode": {
+    "list": "リスト",
     "week": "週",
     "month": "月"
+  },
+  "sort": {
+    "label": "並び替え",
+    "airingTime": "放送時間",
+    "title": "タイトル",
+    "score": "評価",
+    "popularity": "人気",
+    "asc": "昇順",
+    "desc": "降順"
   },
   "adultContent": {
     "show": "成人向けコンテンツを表示"

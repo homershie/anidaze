@@ -7,8 +7,18 @@
     "adult": "成人內容 ({count})"
   },
   "viewMode": {
+    "list": "清單",
     "week": "週",
     "month": "月"
+  },
+  "sort": {
+    "label": "排序方式",
+    "airingTime": "播出時間",
+    "title": "標題",
+    "score": "評分",
+    "popularity": "人氣",
+    "asc": "升序",
+    "desc": "降序"
   },
   "adultContent": {
     "show": "顯示成人內容"

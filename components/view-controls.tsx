@@ -5,20 +5,31 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { CountryTags } from "@/components/country-tags";
+import { SortControl } from "@/components/sort-control";
 
 interface ViewControlsProps {
-  viewMode: "week" | "month";
+  viewMode: "list" | "week" | "month";
   showAdult: boolean;
   selectedCountry: string;
   countryOptions: Array<{
     group: string;
     countries: Array<{ code: string; name: string }>;
   }>;
+  sortBy?: "airingTime" | "title" | "score" | "popularity";
+  sortOrder?: "asc" | "desc";
   translations: {
+    list: string;
     week: string;
     month: string;
     showAdult: string;
     allCountries: string;
+    sortLabel: string;
+    sortAiringTime: string;
+    sortTitle: string;
+    sortScore: string;
+    sortPopularity: string;
+    sortAsc: string;
+    sortDesc: string;
   };
 }
 
@@ -27,6 +38,8 @@ export function ViewControls({
   showAdult,
   selectedCountry,
   countryOptions,
+  sortBy = "airingTime",
+  sortOrder = "asc",
   translations,
 }: ViewControlsProps) {
   const router = useRouter();
@@ -56,6 +69,7 @@ export function ViewControls({
       <div className="flex items-center justify-center sm:justify-between flex-wrap gap-4">
         <Tabs value={viewMode} onValueChange={handleViewModeChange}>
           <TabsList>
+            <TabsTrigger value="list">{translations.list}</TabsTrigger>
             <TabsTrigger value="week">{translations.week}</TabsTrigger>
             <TabsTrigger value="month">{translations.month}</TabsTrigger>
           </TabsList>
@@ -83,6 +97,25 @@ export function ViewControls({
           />
         </div>
       </div>
+
+      {/* 只在列表视图显示排序控件 */}
+      {viewMode === "list" && (
+        <div className="flex justify-center sm:justify-start">
+          <SortControl
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            translations={{
+              label: translations.sortLabel,
+              airingTime: translations.sortAiringTime,
+              title: translations.sortTitle,
+              score: translations.sortScore,
+              popularity: translations.sortPopularity,
+              asc: translations.sortAsc,
+              desc: translations.sortDesc,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
