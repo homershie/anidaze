@@ -216,13 +216,21 @@ export default async function Home({
         case "title":
           // 只搜尋標題（支援多語言：romaji, english, native, synonyms, displayTitle）
           const matchRomaji = item.title.romaji?.toLowerCase().includes(query);
-          const matchEnglish = item.title.english?.toLowerCase().includes(query);
+          const matchEnglish = item.title.english
+            ?.toLowerCase()
+            .includes(query);
           const matchNative = item.title.native?.toLowerCase().includes(query);
           const matchSynonyms = item.synonyms?.some((synonym) =>
             synonym?.toLowerCase().includes(query)
           );
           const matchDisplay = item.displayTitle.toLowerCase().includes(query);
-          return matchRomaji || matchEnglish || matchNative || matchSynonyms || matchDisplay;
+          return (
+            matchRomaji ||
+            matchEnglish ||
+            matchNative ||
+            matchSynonyms ||
+            matchDisplay
+          );
         case "genre":
           // 只搜尋類型
           return item.genres?.some((genre) =>
@@ -236,21 +244,36 @@ export default async function Home({
         case "all":
         default:
           // 搜尋標題（多語言）、類型和製作公司
-          const matchTitleRomaji = item.title.romaji?.toLowerCase().includes(query);
-          const matchTitleEnglish = item.title.english?.toLowerCase().includes(query);
-          const matchTitleNative = item.title.native?.toLowerCase().includes(query);
+          const matchTitleRomaji = item.title.romaji
+            ?.toLowerCase()
+            .includes(query);
+          const matchTitleEnglish = item.title.english
+            ?.toLowerCase()
+            .includes(query);
+          const matchTitleNative = item.title.native
+            ?.toLowerCase()
+            .includes(query);
           const matchTitleSynonyms = item.synonyms?.some((synonym) =>
             synonym?.toLowerCase().includes(query)
           );
-          const matchTitleDisplay = item.displayTitle.toLowerCase().includes(query);
+          const matchTitleDisplay = item.displayTitle
+            .toLowerCase()
+            .includes(query);
           const matchGenre = item.genres?.some((genre) =>
             genre?.toLowerCase().includes(query)
           );
           const matchStudio = item.studios?.nodes?.some((studio) =>
             studio?.name?.toLowerCase().includes(query)
           );
-          return matchTitleRomaji || matchTitleEnglish || matchTitleNative ||
-                 matchTitleSynonyms || matchTitleDisplay || matchGenre || matchStudio;
+          return (
+            matchTitleRomaji ||
+            matchTitleEnglish ||
+            matchTitleNative ||
+            matchTitleSynonyms ||
+            matchTitleDisplay ||
+            matchGenre ||
+            matchStudio
+          );
       }
     });
   }
@@ -621,19 +644,28 @@ async function WeekView({
   // 週六的日期（start + 6天）
   const endDate = new Date(start);
   endDate.setUTCDate(endDate.getUTCDate() + 6);
-  const weekRangeText = `${dateFormatter.format(start)} - ${dateFormatter.format(endDate)}`;
+  const weekRangeText = `${dateFormatter.format(
+    start
+  )} - ${dateFormatter.format(endDate)}`;
 
   return (
     <div className="space-y-4">
-      <div className="text-sm text-muted-foreground mb-4">{weekRangeText}</div>
+      <div className="text-sm text-center sm:text-left text-muted-foreground mb-4">
+        {weekRangeText}
+      </div>
 
       <div className="overflow-x-auto">
         <div className="inline-block min-w-full">
           {/* 表頭：星期 */}
-          <div className="grid grid-cols-8 gap-px border-b mb-2">
-            <div className="p-2 text-center text-sm font-medium">時間</div>
+          <div className="grid grid-cols-[auto_repeat(7,_minmax(0,_1fr))] gap-px border-b mb-2">
+            <div className="py-2 px-0 sm:px-2 md:px-5 text-center text-[0.5rem] sm:text-xs md:text-sm font-medium">
+              時間
+            </div>
             {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-              <div key={day} className="p-2 text-center text-sm font-medium">
+              <div
+                key={day}
+                className="p-2 text-center text-[0.5rem] sm:text-xs md:text-sm font-medium"
+              >
                 {t(
                   dayNameKeys[day] as
                     | "day.sunday"
@@ -650,9 +682,12 @@ async function WeekView({
 
           {/* 時間段行 */}
           {hours.map((hour) => (
-            <div key={hour} className="grid grid-cols-8 gap-px border-b">
+            <div
+              key={hour}
+              className="grid grid-cols-[auto_repeat(7,_minmax(0,_1fr))] gap-px border-b"
+            >
               {/* 時間標籤 */}
-              <div className="p-2 text-sm font-medium bg-muted/30 flex items-center justify-center">
+              <div className="p-2 text-[0.5rem] sm:text-xs md:text-sm font-medium bg-muted/30 flex items-center justify-center px-0 sm:px-2 md:px-4">
                 {String(hour).padStart(2, "0")}:00
               </div>
 
@@ -668,9 +703,7 @@ async function WeekView({
                           <CalendarMediaItem
                             key={mediaItem.id}
                             mediaItem={mediaItem}
-                            episode={
-                              mediaItem.nextAiringEpisode?.episode || 1
-                            }
+                            episode={mediaItem.nextAiringEpisode?.episode || 1}
                             color={color}
                             translations={{
                               episode: t("media.episode", {
@@ -849,7 +882,9 @@ async function MonthView({
 
   return (
     <div className="space-y-4">
-      <div className="text-lg font-semibold mb-4">{monthText}</div>
+      <div className="text-lg text-center sm:text-left font-semibold mb-4">
+        {monthText}
+      </div>
 
       {/* 日曆表格 */}
       <div className="overflow-x-auto">
