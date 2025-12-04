@@ -103,7 +103,11 @@
     "genres": "類型",
     "studios": "製作公司",
     "description": "簡介",
-    "malDescription": "MyAnimeList 簡介"
+    "malDescription": "MyAnimeList 簡介",
+    "notCurrentSeason": "此動畫目前未在播出",
+    "notCurrentSeasonDesc": "AniDaze 僅顯示當前正在播出或即將播出的動畫。此動畫已完結或不屬於當前季度。",
+    "adultContentBlocked": "無法顯示成人內容",
+    "adultContentBlockedDesc": "此內容已被過濾。成人內容不包含在我們的公開列表中。"
   },
   "anilist": {
     "format": {

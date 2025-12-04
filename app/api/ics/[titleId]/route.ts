@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import {
   anilist,
   AIRING_BY_MEDIA_QUERY,
+  MEDIA_DETAIL_QUERY,
   type AiringByMediaResponse,
+  type MediaDetailResponse,
 } from "@/lib/anilist";
 import { buildICS, type IcsEvent } from "@/lib/ics";
 import { getBestTitle } from "@/lib/title";
@@ -15,6 +17,7 @@ import {
   getTimezoneDisplayName,
 } from "@/lib/time";
 import { getTranslations } from "next-intl/server";
+import { isMediaAccessible } from "@/lib/validation";
 
 export async function GET(
   req: Request,
@@ -32,6 +35,24 @@ export async function GET(
     Math.min(50, Number(url.searchParams.get("perPage")) || 30)
   );
 
+  // 第一步：獲取作品詳情以驗證可訪問性
+  const mediaDetailData = await anilist<MediaDetailResponse>(
+    MEDIA_DETAIL_QUERY,
+    { mediaId },
+    { next: { revalidate: 60 * 30, tags: [`media-${mediaId}`] } }
+  );
+
+  const mediaDetail = mediaDetailData.Media;
+
+  // 驗證作品可訪問性（過濾非當季和成人內容）
+  if (!mediaDetail || !isMediaAccessible(mediaDetail, true)) {
+    return NextResponse.json(
+      { error: "This anime is not available for calendar export" },
+      { status: 404 }
+    );
+  }
+
+  // 第二步：獲取播出時間表
   const data = await anilist<AiringByMediaResponse>(
     AIRING_BY_MEDIA_QUERY,
     { mediaId, page: 1, perPage },

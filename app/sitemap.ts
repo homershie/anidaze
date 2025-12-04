@@ -136,10 +136,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 獲取長期播放的動畫（限制頁數）
     const ongoingMedia = await getLimitedOngoingMedia();
 
-    // 合併並去重（使用 Set）
+    // 合併並去重，同時過濾成人內容
     const allMediaIds = new Set<number>();
     [...seasonalMedia, ...ongoingMedia].forEach((media) => {
-      allMediaIds.add(media.id);
+      // 只添加非成人內容到 sitemap
+      if (media.isAdult !== true) {
+        allMediaIds.add(media.id);
+      }
     });
 
     // 建立首頁條目

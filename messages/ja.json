@@ -103,7 +103,11 @@
     "genres": "ジャンル",
     "studios": "制作会社",
     "description": "あらすじ",
-    "malDescription": "MyAnimeList あらすじ"
+    "malDescription": "MyAnimeList あらすじ",
+    "notCurrentSeason": "このアニメは現在放送されていません",
+    "notCurrentSeasonDesc": "AniDaze は現在放送中または放送予定のアニメのみを表示します。このアニメは放送終了済みまたは今期ではありません。",
+    "adultContentBlocked": "アダルトコンテンツは利用できません",
+    "adultContentBlockedDesc": "このコンテンツはフィルタリングされています。アダルトコンテンツは公開リストに含まれていません。"
   },
   "anilist": {
     "format": {

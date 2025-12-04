@@ -116,6 +116,7 @@ export const MEDIA_DETAIL_QUERY = /* GraphQL */ `
       seasonYear
       episodes
       status
+      isAdult
       format
       genres
       studios {
@@ -322,6 +323,7 @@ export type MediaDetailResponse = {
     seasonYear: number | null;
     episodes: number | null;
     status: string | null;
+    isAdult: boolean | null;
     format: string | null;
     genres: Array<string | null> | null;
     studios: {

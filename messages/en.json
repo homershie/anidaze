@@ -103,7 +103,11 @@
     "genres": "Genres",
     "studios": "Studios",
     "description": "Description",
-    "malDescription": "MyAnimeList Description"
+    "malDescription": "MyAnimeList Description",
+    "notCurrentSeason": "This anime is not currently airing",
+    "notCurrentSeasonDesc": "AniDaze only shows anime that are currently airing or scheduled to air soon. This anime has finished airing or is not part of the current season.",
+    "adultContentBlocked": "Adult content is not available",
+    "adultContentBlockedDesc": "This content has been filtered. Adult content is not included in our public listings."
   },
   "anilist": {
     "format": {

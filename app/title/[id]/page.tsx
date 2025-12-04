@@ -14,6 +14,7 @@ import {
 } from "@/lib/bangumi";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
+import { isMediaAccessible, getAccessDeniedReason } from "@/lib/validation";
 
 export async function generateMetadata({
   params,
@@ -40,6 +41,26 @@ export async function generateMetadata({
     if (!media) {
       return {
         title: "動畫不存在",
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
+
+    // 驗證作品可訪問性（過濾非當季和成人內容）
+    if (!isMediaAccessible(media, true)) {
+      const locale = await getLocale();
+      const t = await getTranslations();
+      const reason = getAccessDeniedReason(media.status, media.isAdult);
+
+      return {
+        title: t(`title.${reason}`),
+        description: t(`title.${reason}Desc`),
+        robots: {
+          index: false,
+          follow: false,
+        },
       };
     }
 
@@ -183,6 +204,32 @@ export default async function TitlePage({
           >
             {t("title.backToList")}
           </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // 驗證作品可訪問性（過濾非當季和成人內容）
+  if (!isMediaAccessible(media, true)) {
+    const reason = getAccessDeniedReason(media.status, media.isAdult);
+
+    return (
+      <main className="mx-auto max-w-3xl p-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950">
+          <h1 className="text-2xl font-semibold text-red-900 dark:text-red-100">
+            {t(`title.${reason}`)}
+          </h1>
+          <p className="mt-4 text-red-800 dark:text-red-200">
+            {t(`title.${reason}Desc`)}
+          </p>
+          <div className="mt-6">
+            <Link
+              href="/"
+              className="inline-block rounded bg-brand-red-600 px-4 py-2 text-white hover:bg-brand-red-700"
+            >
+              {t("title.backToList")}
+            </Link>
+          </div>
         </div>
       </main>
     );
