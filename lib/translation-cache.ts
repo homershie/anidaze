@@ -5,15 +5,54 @@ import { createHash } from "crypto";
 // Vercel automatically provides this environment variable
 const redisClient = createClient({
   url: process.env.REDIS_URL || "",
+  socket: {
+    reconnectStrategy: (retries) => {
+      if (retries > 3) {
+        return new Error("Redis connection failed after 3 retries");
+      }
+      return Math.min(retries * 50, 500);
+    },
+  },
 });
 
-// Connect to Redis (lazy connection)
+// Handle connection errors
+redisClient.on("error", (err) => {
+  console.error("Redis client error:", err);
+});
+
+// Connect to Redis (lazy connection with error handling)
 let isConnected = false;
+let connectionPromise: Promise<void> | null = null;
+
 async function getRedis() {
-  if (!isConnected) {
-    await redisClient.connect();
-    isConnected = true;
+  // If already connected, return client
+  if (isConnected && redisClient.isOpen) {
+    return redisClient;
   }
+
+  // If connection is in progress, wait for it
+  if (connectionPromise) {
+    await connectionPromise;
+    return redisClient;
+  }
+
+  // Start new connection
+  connectionPromise = (async () => {
+    try {
+      if (!redisClient.isOpen) {
+        await redisClient.connect();
+      }
+      isConnected = true;
+    } catch (error) {
+      isConnected = false;
+      connectionPromise = null;
+      throw error;
+    } finally {
+      connectionPromise = null;
+    }
+  })();
+
+  await connectionPromise;
   return redisClient;
 }
 
