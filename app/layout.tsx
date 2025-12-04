@@ -121,6 +121,10 @@ export async function generateMetadata(): Promise<Metadata> {
       // 可以在這裡添加 Google Search Console 驗證碼
       // google: "your-google-verification-code",
     },
+    other: {
+      // 禁用 Google 翻譯，避免 DOM 操作錯誤
+      "google": "notranslate",
+    },
   };
 }
 
