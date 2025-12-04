@@ -285,11 +285,68 @@ export default async function Home({
     // 列表視圖：顯示所有作品，不進行時間過濾
     timeFilteredItems = filteredItems;
   } else if (viewMode === "week") {
-    // 週視圖：只顯示有下一次播出時間且在本週範圍內的作品
+    // 週視圖：顯示有任何播出時間在本週範圍內的作品（包括過去的日期）
+    const { start: weekStart, end: weekEnd } = getWeekRange(0);
+    // 創建只包含日期部分的比較對象（忽略時間）
+    const weekStartOnly = new Date(
+      Date.UTC(
+        weekStart.getUTCFullYear(),
+        weekStart.getUTCMonth(),
+        weekStart.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+    const weekEndOnly = new Date(
+      Date.UTC(
+        weekEnd.getUTCFullYear(),
+        weekEnd.getUTCMonth(),
+        weekEnd.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+
     timeFilteredItems = filteredItems.filter((item) => {
-      const nextEpisode = item.nextAiringEpisode;
-      if (!nextEpisode?.airingAt) return false;
-      return isWithinWeekRange(nextEpisode.airingAt, 0);
+      const airingSchedule = item.airingSchedule?.nodes || [];
+      const episodes =
+        airingSchedule.length > 0
+          ? airingSchedule.filter(
+              (e): e is { episode: number; airingAt: number } => e !== null
+            )
+          : item.nextAiringEpisode
+          ? [
+              {
+                episode: item.nextAiringEpisode.episode,
+                airingAt: item.nextAiringEpisode.airingAt,
+              },
+            ]
+          : [];
+
+      // 檢查是否有任何播出時間在本週範圍內（包括過去的日期）
+      return episodes.some((episode) => {
+        // 使用 getDateFromTimestamp 來獲取一致的時區處理
+        const episodeDate = getDateFromTimestamp(episode.airingAt);
+        const episodeDateOnly = new Date(
+          Date.UTC(
+            episodeDate.getUTCFullYear(),
+            episodeDate.getUTCMonth(),
+            episodeDate.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+        // 包含過去的日期，只要在本週範圍內
+        return (
+          episodeDateOnly >= weekStartOnly && episodeDateOnly <= weekEndOnly
+        );
+      });
     });
   } else if (viewMode === "month") {
     // 月視圖：顯示有任何播出時間在本月範圍內的作品（包括過去的日期）
@@ -606,17 +663,82 @@ async function WeekView({
   weekOffset: number;
 }) {
   const t = await getTranslations();
-  const { start } = getWeekRange(weekOffset);
+  const { start, end } = getWeekRange(weekOffset);
 
-  // 按小時和星期分組作品
-  // hourByDay[hour][dayOfWeek] = [...media]
-  const hourByDay: Record<number, Record<number, typeof media>> = {};
+  // 取得週範圍（只包含日期部分）
+  const weekStartOnly = new Date(
+    Date.UTC(
+      start.getUTCFullYear(),
+      start.getUTCMonth(),
+      start.getUTCDate(),
+      0,
+      0,
+      0,
+      0
+    )
+  );
+  const weekEndOnly = new Date(
+    Date.UTC(
+      end.getUTCFullYear(),
+      end.getUTCMonth(),
+      end.getUTCDate(),
+      0,
+      0,
+      0,
+      0
+    )
+  );
+
+  // 按小時和星期分組作品和集數
+  // hourByDay[hour][dayOfWeek] = [{mediaItem, episode, airingAt}, ...]
+  type MediaItemWithEpisode = {
+    mediaItem: (typeof media)[0];
+    episode: number;
+    airingAt: number;
+  };
+  const hourByDay: Record<number, Record<number, MediaItemWithEpisode[]>> = {};
 
   media.forEach((mediaItem) => {
-    const nextEpisode = mediaItem.nextAiringEpisode;
-    if (nextEpisode?.airingAt) {
-      const hour = getHourFromTimestamp(nextEpisode.airingAt);
-      const dayOfWeek = getDayOfWeek(nextEpisode.airingAt);
+    // 獲取所有播出時間（包括過去的日期）
+    const airingSchedule = mediaItem.airingSchedule?.nodes || [];
+
+    // 如果沒有 airingSchedule，使用 nextAiringEpisode 作為備用
+    const episodes =
+      airingSchedule.length > 0
+        ? airingSchedule.filter(
+            (e): e is { episode: number; airingAt: number } => e !== null
+          )
+        : mediaItem.nextAiringEpisode
+        ? [
+            {
+              episode: mediaItem.nextAiringEpisode.episode,
+              airingAt: mediaItem.nextAiringEpisode.airingAt,
+            },
+          ]
+        : [];
+
+    episodes.forEach((episode) => {
+      // 使用 getDateFromTimestamp 來獲取一致的時區處理
+      const episodeDate = getDateFromTimestamp(episode.airingAt);
+      const episodeDateOnly = new Date(
+        Date.UTC(
+          episodeDate.getUTCFullYear(),
+          episodeDate.getUTCMonth(),
+          episodeDate.getUTCDate(),
+          0,
+          0,
+          0,
+          0
+        )
+      );
+
+      // 只處理在本週範圍內的播出時間（包括過去的日期）
+      if (episodeDateOnly < weekStartOnly || episodeDateOnly > weekEndOnly) {
+        return;
+      }
+
+      const hour = getHourFromTimestamp(episode.airingAt);
+      const dayOfWeek = getDayOfWeek(episode.airingAt);
 
       if (!hourByDay[hour]) {
         hourByDay[hour] = {};
@@ -624,8 +746,12 @@ async function WeekView({
       if (!hourByDay[hour][dayOfWeek]) {
         hourByDay[hour][dayOfWeek] = [];
       }
-      hourByDay[hour][dayOfWeek].push(mediaItem);
-    }
+      hourByDay[hour][dayOfWeek].push({
+        mediaItem,
+        episode: episode.episode,
+        airingAt: episode.airingAt,
+      });
+    });
   });
 
   // 獲取所有有動畫的小時並排序
@@ -707,18 +833,19 @@ async function WeekView({
                 return (
                   <div key={day} className="p-2 border-r min-h-[80px]">
                     <div className="space-y-1">
-                      {dayMedia.map((mediaItem) => {
-                        const color = getGenreColor(mediaItem.genres);
+                      {dayMedia.map((item) => {
+                        // 使用唯一 key：mediaId + episode + airingAt
+                        const uniqueKey = `${item.mediaItem.id}-${item.episode}-${item.airingAt}`;
+                        const color = getGenreColor(item.mediaItem.genres);
                         return (
                           <CalendarMediaItem
-                            key={mediaItem.id}
-                            mediaItem={mediaItem}
-                            episode={mediaItem.nextAiringEpisode?.episode || 1}
+                            key={uniqueKey}
+                            mediaItem={item.mediaItem}
+                            episode={item.episode}
                             color={color}
                             translations={{
                               episode: t("media.episode", {
-                                episode:
-                                  mediaItem.nextAiringEpisode?.episode || 1,
+                                episode: item.episode,
                               }),
                               viewDetails: t("media.viewDetails"),
                               downloadIcal: t("media.downloadIcal"),
