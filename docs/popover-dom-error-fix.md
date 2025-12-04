@@ -25,13 +25,13 @@ NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed
 ```tsx
 export async function generateMetadata(): Promise<Metadata> {
   // ... 其他 metadata 設定
-  
+
   return {
     // ... 其他設定
     other: {
       // 禁用 Google 翻譯，避免 DOM 操作錯誤
       // 這會在服務器端渲染時就添加到 HTML head 中
-      "google": "notranslate",
+      google: "notranslate",
     },
   };
 }
@@ -48,10 +48,10 @@ export async function generateMetadata(): Promise<Metadata> {
 const handleViewDetails = (e: React.MouseEvent) => {
   e.preventDefault();
   e.stopPropagation();
-  
+
   // 立即關閉 Popover（不等待動畫）
   setOpen(false);
-  
+
   // 使用完整頁面導航，避免 React 在路由切換時的 DOM 操作錯誤
   // 使用 requestAnimationFrame 確保 DOM 更新完成
   requestAnimationFrame(() => {
@@ -63,12 +63,14 @@ const handleViewDetails = (e: React.MouseEvent) => {
 ## 驗證方法
 
 1. **檢查 HTML 源碼**：
+
    - 在 Chrome 瀏覽器中打開開發者工具
    - 切換到 "Elements" 標籤
    - 查看 `<head>` 部分，確認有 `<meta name="google" content="notranslate">` 標籤
    - **重要**：應該在 HTML 源碼中就能看到，而不是通過 JavaScript 動態添加
 
 2. **測試功能**：
+
    - 點擊 Popover 中的「查看詳情」按鈕
    - 確認不再出現 `removeChild` 錯誤
    - 確認頁面可以正常導航
@@ -80,16 +82,19 @@ const handleViewDetails = (e: React.MouseEvent) => {
 ## 注意事項
 
 1. **必須在服務器端添加**：
+
    - 使用客戶端組件（如 `useEffect`）添加 meta 標籤**無法解決問題**
    - 因為在客戶端 JavaScript 執行之前，Google 翻譯可能已經開始工作
    - 必須在 `generateMetadata` 中使用 `other` 字段，確保 meta 標籤在 HTML 源碼中就存在
 
 2. **使用完整頁面導航的影響**：
+
    - 使用 `window.location.href` 會導致頁面重新載入，失去 Next.js 的客戶端導航優勢
    - 如果希望保留客戶端導航，可以在禁用翻譯後嘗試改回使用 `router.push()`
    - 但建議先測試確保錯誤不再出現
 
 3. **其他瀏覽器**：
+
    - 此問題主要出現在 Chrome 瀏覽器中，因為其他瀏覽器（如 Edge）通常沒有類似的自動翻譯功能
    - 如果只在 Chrome 中出現問題，很可能是 Google 翻譯導致的
 
@@ -105,6 +110,5 @@ const handleViewDetails = (e: React.MouseEvent) => {
 
 ## 更新記錄
 
-- 2025-01-XX: 初始版本，記錄 Google 翻譯導致的 DOM 錯誤問題及解決方案
-- 2025-01-XX: 更新為服務器端解決方案，確保首次載入時 meta 標籤就存在
-
+- 2025-12-04: 初始版本，記錄 Google 翻譯導致的 DOM 錯誤問題及解決方案
+- 2025-12-05: 更新為服務器端解決方案，確保首次載入時 meta 標籤就存在
