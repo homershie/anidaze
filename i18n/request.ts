@@ -33,13 +33,22 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
       // 嘗試匹配支援的語言
       for (const { code } of languages) {
-        // 完全匹配 (例如: zh-TW)
-        if (routing.locales.includes(code as AppLocale)) {
-          locale = code as AppLocale;
+        // Case-insensitive 完全匹配 (例如: zh-tw -> zh-TW, zh-cn -> zh-CN)
+        const matchedLocale = routing.locales.find(l => l.toLowerCase() === code);
+        if (matchedLocale) {
+          locale = matchedLocale;
           break;
         }
-        // 部分匹配 (例如: zh -> zh-TW, ja -> ja, en -> en)
-        if (code.startsWith("zh")) {
+
+        // 語言前綴匹配 (例如: zh-CN, zh-Hans -> zh-CN)
+        if (code.startsWith("zh-cn") || code.startsWith("zh-hans")) {
+          locale = "zh-CN";
+          break;
+        } else if (code.startsWith("zh-tw") || code.startsWith("zh-hant")) {
+          locale = "zh-TW";
+          break;
+        } else if (code.startsWith("zh")) {
+          // zh 不帶後綴的預設為繁體中文（為了向下相容）
           locale = "zh-TW";
           break;
         } else if (code.startsWith("ja")) {

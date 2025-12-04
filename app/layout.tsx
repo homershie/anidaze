@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_SC } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale, getTranslations } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -20,6 +20,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Simplified Chinese font
+const notoSansSC = Noto_Sans_SC({
+  variable: "--font-noto-sans-sc",
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,6 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: "/",
       languages: {
         "zh-TW": "/",
+        "zh-CN": "/",
         ja: "/",
         en: "/",
       },
@@ -124,10 +132,15 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
 
+  // Use Noto Sans SC for Simplified Chinese
+  const fontVariables = locale === "zh-CN"
+    ? `${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable}`
+    : `${geistSans.variable} ${geistMono.variable}`;
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${fontVariables} antialiased`}
       >
         <TypekitLoader />
         <ThemeProvider
