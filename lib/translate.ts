@@ -1,5 +1,5 @@
 import * as deepl from "deepl-node";
-import OpenCC from "opencc-js";
+import { Converter } from "opencc-js";
 import {
   getCachedTranslation,
   setCachedTranslation,
@@ -29,7 +29,7 @@ const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 let translator: deepl.Translator | null = null;
 
 // Initialize OpenCC converter (Simplified Chinese to Traditional Chinese - Taiwan standard)
-const converter = OpenCC.Converter({ from: "cn", to: "tw" });
+const converter = Converter({ from: "cn", to: "tw" });
 
 function getTranslator(): deepl.Translator | null {
   if (!DEEPL_API_KEY) {
@@ -45,13 +45,14 @@ function getTranslator(): deepl.Translator | null {
 }
 
 /**
- * Translate text from Japanese to Traditional Chinese
+ * Translate text from Japanese to Chinese
  * with automatic caching and quota management
  *
  * @param text - Japanese text to translate
+ * @param convertToTraditional - Whether to convert to Traditional Chinese (Taiwan). Default: true
  * @returns Translated text or original text if translation fails/quota exceeded
  */
-export async function translateJaToZhTW(text: string): Promise<string> {
+export async function translateJaToZhTW(text: string, convertToTraditional: boolean = true): Promise<string> {
   if (!text || text.trim().length === 0) {
     return text;
   }
@@ -97,10 +98,14 @@ export async function translateJaToZhTW(text: string): Promise<string> {
     console.log(`Translating ${textLength} characters from Japanese to Simplified Chinese...`);
     const result = await translatorInstance.translateText(text, sourceLang, "zh");
 
-    // Step 5.5: Convert Simplified Chinese to Traditional Chinese (Taiwan)
-    const simplifiedText = result.text;
-    const translatedText = converter(simplifiedText);
-    console.log("Converted Simplified Chinese to Traditional Chinese (Taiwan)");
+    // Step 5.5: Convert to Traditional Chinese if needed
+    let translatedText = result.text;
+    if (convertToTraditional) {
+      translatedText = converter(translatedText);
+      console.log("Converted Simplified Chinese to Traditional Chinese (Taiwan)");
+    } else {
+      console.log("Keeping Simplified Chinese output");
+    }
 
     // Step 6: Update usage counter
     await incrementUsage(textLength);

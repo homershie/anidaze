@@ -11,8 +11,8 @@ export function Footer() {
     <footer className="mt-16 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center gap-4">
-          {/* Translation Notice (只在繁體中文顯示) */}
-          {locale === "zh-TW" && (
+          {/* Translation Notice (只在中文語系顯示) */}
+          {(locale === "zh-TW" || locale === "zh-CN") && (
             <div className="w-full max-w-2xl rounded-lg border border-brand-yellow-200 bg-brand-yellow-50 p-4 text-center dark:border-brand-yellow-900/50 dark:bg-brand-yellow-950/20">
               <h3 className="text-sm font-semibold text-brand-yellow-500 dark:text-brand-yellow-400">
                 {t("translationNotice")}

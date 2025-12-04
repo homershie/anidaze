@@ -98,8 +98,8 @@ export async function generateMetadata({
 
     // 根據語言選擇對應的描述
     let description = "";
-    if (locale === "zh-TW" && bangumiData?.summary_zh) {
-      // 繁體中文：使用 Bangumi 翻譯後的中文描述
+    if ((locale === "zh-TW" || locale === "zh-CN") && bangumiData?.summary_zh) {
+      // 繁體中文/簡體中文：使用 Bangumi 翻譯後的中文描述
       description = cleanDescription(bangumiData.summary_zh);
     } else if (locale === "ja" && bangumiData?.summary) {
       // 日文：使用 Bangumi 日文原文描述
@@ -388,7 +388,7 @@ export default async function TitlePage({
                 {t("title.description")}
               </h2>
               <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                {locale === "zh-TW" && bangumiData?.summary_zh
+                {(locale === "zh-TW" || locale === "zh-CN") && bangumiData?.summary_zh
                   ? bangumiData.summary_zh
                   : locale === "ja" && bangumiData?.summary
                     ? bangumiData.summary

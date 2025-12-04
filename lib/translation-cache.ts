@@ -30,11 +30,15 @@ const MONTHLY_LIMIT = 500000; // DeepL Free API limit: 500,000 characters/month
 
 /**
  * Generate a hash key for the translation cache
- * Format: translation:{sourceLang}-{targetLang}:{hash}
+ * Format: translation:v2:{sourceLang}-{targetLang}:{hash}
+ *
+ * Version history:
+ * - v1: DeepL direct to Simplified Chinese (zh)
+ * - v2: DeepL to Simplified Chinese + OpenCC conversion to Traditional Chinese
  */
 function getTranslationKey(text: string, sourceLang: string, targetLang: string): string {
   const hash = createHash("md5").update(text).digest("hex");
-  return `translation:${sourceLang}-${targetLang}:${hash}`;
+  return `translation:v2:${sourceLang}-${targetLang}:${hash}`;
 }
 
 /**

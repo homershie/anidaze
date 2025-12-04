@@ -1,6 +1,6 @@
 import {defineRouting} from 'next-intl/routing';
 
-export const locales = ['zh-TW', 'ja', 'en'] as const;
+export const locales = ['zh-TW', 'zh-CN', 'ja', 'en'] as const;
 export type AppLocale = typeof locales[number];
 
 export const defaultLocale: AppLocale = 'zh-TW';
@@ -14,6 +14,7 @@ export const routing = defineRouting({
 
 export const localeNames: Record<AppLocale, string> = {
   'zh-TW': '繁體中文',
+  'zh-CN': '简体中文',
   ja: '日本語',
   en: 'English'
 };

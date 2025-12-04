@@ -179,16 +179,16 @@ export async function getWikidataId(pageTitle: string): Promise<string | null> {
 /**
  * Get localized label from Wikidata entity
  * @param entityId - The Wikidata entity ID (QID)
- * @param locale - Target locale ('zh-TW', 'ja', 'en')
+ * @param locale - Target locale ('zh-TW', 'zh-CN', 'ja', 'en')
  * @returns Localized label or null if not found
  */
 export async function getWikidataLocalizedLabel(
   entityId: string,
-  locale: "zh-TW" | "ja" | "en" = "zh-TW"
+  locale: "zh-TW" | "zh-CN" | "ja" | "en" = "zh-TW"
 ): Promise<string | null> {
   try {
     // Map locale to Wikipedia language codes
-    const languageCodes = locale === "zh-TW" ? ["zh", "zh-Hant"] : locale === "ja" ? ["ja"] : ["en"];
+    const languageCodes = locale === "zh-TW" ? ["zh", "zh-Hant"] : locale === "zh-CN" ? ["zh", "zh-Hans"] : locale === "ja" ? ["ja"] : ["en"];
     
     const url = new URL(WIKIDATA_ENDPOINT);
     url.searchParams.set("action", "wbgetentities");
@@ -306,20 +306,20 @@ function shouldFilterWikipediaResult(pageTitle: string): boolean {
 /**
  * Find localized title from Wikipedia/Wikidata
  * @param title - The title to search for (Japanese or English)
- * @param locale - Target locale ('zh-TW', 'ja', 'en')
+ * @param locale - Target locale ('zh-TW', 'zh-CN', 'ja', 'en')
  * @returns Localized title if found, null otherwise
  */
 export async function findLocalizedTitleFromWikipedia(
   title: string,
-  locale: "zh-TW" | "ja" | "en" = "zh-TW"
+  locale: "zh-TW" | "zh-CN" | "ja" | "en" = "zh-TW"
 ): Promise<string | null> {
   if (!title) {
     return null;
   }
 
   // For Japanese and English, Wikipedia is not needed as AniList already provides them
-  // Only Traditional Chinese needs Wikipedia lookup
-  if (locale !== "zh-TW") {
+  // Only Chinese (Traditional/Simplified) needs Wikipedia lookup
+  if (locale !== "zh-TW" && locale !== "zh-CN") {
     return null;
   }
 
@@ -353,7 +353,7 @@ export async function findLocalizedTitleFromWikipedia(
     // Method 2: Try via Wikidata
     const wikidataId = await getWikidataId(firstResult.title);
     if (wikidataId) {
-      const chineseLabel = await getWikidataLocalizedLabel(wikidataId, "zh-TW");
+      const chineseLabel = await getWikidataLocalizedLabel(wikidataId, locale);
       if (chineseLabel) {
         return chineseLabel;
       }

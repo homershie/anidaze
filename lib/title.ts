@@ -51,18 +51,18 @@ export async function getBestTitle(
     return "Unknown";
   }
 
-  // For Traditional Chinese (zh-TW): need to fetch from TMDB/Wikipedia
-  // Priority 1: Try to get Traditional Chinese from TMDB
+  // For Chinese (zh-TW or zh-CN): need to fetch from TMDB/Wikipedia
+  // Priority 1: Try to get Chinese title from TMDB
   const chineseTitle = await findLocalizedTitleFromTMDB(
     titleInfo.native,
     titleInfo.english,
-    "zh-TW"
+    locale as "zh-TW" | "zh-CN"
   );
   if (chineseTitle) {
     return chineseTitle;
   }
 
-  // Priority 2: Try to get Traditional Chinese from Wikipedia as fallback
+  // Priority 2: Try to get Chinese title from Wikipedia as fallback
   // Try multiple title sources to improve accuracy for ambiguous titles
   const titleCandidates = [
     titleInfo.romaji,    // Most anime-specific, less ambiguous
@@ -72,7 +72,7 @@ export async function getBestTitle(
 
   for (const candidate of titleCandidates) {
     if (candidate) {
-      const wikipediaTitle = await findLocalizedTitleFromWikipedia(candidate, "zh-TW");
+      const wikipediaTitle = await findLocalizedTitleFromWikipedia(candidate, locale as "zh-TW" | "zh-CN");
       if (wikipediaTitle) {
         return wikipediaTitle;
       }

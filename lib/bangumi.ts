@@ -258,12 +258,14 @@ export async function getBangumiMetadata(
     // Get Japanese summary
     const summary = subjectData.summary || null;
 
-    // Translate to Chinese if locale is zh-TW and summary exists
+    // Translate to Chinese if locale is zh-TW or zh-CN and summary exists
     let summary_zh: string | null = null;
-    if (summary && locale === "zh-TW") {
+    if (summary && (locale === "zh-TW" || locale === "zh-CN")) {
       // Dynamic import to avoid circular dependencies and reduce bundle size
       const { translateJaToZhTW } = await import("./translate");
-      summary_zh = await translateJaToZhTW(summary);
+      // Convert to Traditional Chinese for zh-TW, keep Simplified for zh-CN
+      const convertToTraditional = locale === "zh-TW";
+      summary_zh = await translateJaToZhTW(summary, convertToTraditional);
     }
 
     return {

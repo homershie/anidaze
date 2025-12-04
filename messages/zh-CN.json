@@ -1,0 +1,191 @@
+{
+  "app": {
+    "title": "动画时日 AniDaze — {year}年{season}动画"
+  },
+  "tabs": {
+    "general": "一般内容 ({count})",
+    "adult": "成人内容 ({count})"
+  },
+  "viewMode": {
+    "list": "清单",
+    "week": "周",
+    "month": "月"
+  },
+  "sort": {
+    "label": "排序方式",
+    "airingTime": "播出时间",
+    "title": "标题",
+    "score": "评分",
+    "popularity": "人气",
+    "asc": "升序",
+    "desc": "降序"
+  },
+  "adultContent": {
+    "show": "显示成人内容"
+  },
+  "navigation": {
+    "previousWeek": "上周",
+    "nextWeek": "下周",
+    "previousMonth": "上个月",
+    "nextMonth": "下个月"
+  },
+  "season": {
+    "winter": "冬季",
+    "spring": "春季",
+    "summer": "夏季",
+    "fall": "秋季"
+  },
+  "stats": {
+    "currentAiring": "目前上映共 {count} 部动画（{currentSeason} 部{season}新番，{ongoing} 部长期播放）"
+  },
+  "media": {
+    "ongoing": "长期播放",
+    "episode": "EP {episode}",
+    "nextAiring": "下次播出：",
+    "notYetReleased": "尚未播出",
+    "airingTimeUndecided": "播出时间未定",
+    "viewDetails": "查看详情",
+    "downloadIcal": "加入行事历"
+  },
+  "day": {
+    "undecided": "未定",
+    "sunday": "周日",
+    "monday": "周一",
+    "tuesday": "周二",
+    "wednesday": "周三",
+    "thursday": "周四",
+    "friday": "周五",
+    "saturday": "周六"
+  },
+  "country": {
+    "all": "全部国家",
+    "groups": {
+      "chinese": "中文地区",
+      "asia": "亚洲其他地区",
+      "other": "其他地区"
+    },
+    "names": {
+      "JP": "日本",
+      "CN": "中国",
+      "KR": "韩国",
+      "TW": "台湾",
+      "HK": "香港",
+      "US": "美国",
+      "GB": "英国",
+      "CA": "加拿大",
+      "AU": "澳洲",
+      "FR": "法国",
+      "DE": "德国",
+      "IT": "意大利",
+      "ES": "西班牙",
+      "TH": "泰国",
+      "SG": "新加坡",
+      "MY": "马来西亚",
+      "ID": "印尼",
+      "PH": "菲律宾",
+      "VN": "越南"
+    }
+  },
+  "title": {
+    "notFound": "作品不存在",
+    "backToList": "← 返回列表",
+    "addToCalendar": "加入行事历",
+    "scores": "评分",
+    "users": "用户",
+    "ratings": "评分",
+    "rank": "MAL 排名",
+    "siteRank": "全站排名",
+    "info": "作品信息",
+    "type": "类型：",
+    "episodes": "集数：",
+    "status": "状态：",
+    "season": "季度：",
+    "genres": "类型",
+    "studios": "制作公司",
+    "description": "简介",
+    "malDescription": "MyAnimeList 简介",
+    "notCurrentSeason": "此动画目前未在播出",
+    "notCurrentSeasonDesc": "AniDaze 仅显示当前正在播出或即将播出的动画。此动画已完结或不属于当前季度。",
+    "adultContentBlocked": "无法显示成人内容",
+    "adultContentBlockedDesc": "此内容已被过滤。成人内容不包含在我们的公开列表中。"
+  },
+  "anilist": {
+    "format": {
+      "TV": "TV",
+      "TV_SHORT": "TV 短篇",
+      "MOVIE": "电影",
+      "SPECIAL": "特别篇",
+      "OVA": "OVA",
+      "ONA": "ONA",
+      "MUSIC": "音乐",
+      "MANGA": "漫画",
+      "NOVEL": "小说",
+      "ONE_SHOT": "单篇"
+    },
+    "status": {
+      "FINISHED": "完结",
+      "RELEASING": "播出中",
+      "NOT_YET_RELEASED": "尚未播出",
+      "CANCELLED": "已取消",
+      "HIATUS": "暂停"
+    },
+    "genres": {
+      "Action": "动作",
+      "Adventure": "冒险",
+      "Comedy": "喜剧",
+      "Drama": "剧情",
+      "Ecchi": "色色",
+      "Fantasy": "奇幻",
+      "Hentai": "成人",
+      "Horror": "恐怖",
+      "Mahou Shoujo": "魔法少女",
+      "Mecha": "机甲",
+      "Music": "音乐",
+      "Mystery": "悬疑",
+      "Psychological": "心理",
+      "Romance": "恋爱",
+      "Sci-Fi": "科幻",
+      "Slice of Life": "日常",
+      "Sports": "运动",
+      "Supernatural": "超自然",
+      "Thriller": "惊悚"
+    }
+  },
+  "ics": {
+    "recurringDescription": "动画播出时间（每周重复）",
+    "link": "链接"
+  },
+  "theme": {
+    "label": "选择主题",
+    "light": "浅色模式",
+    "dark": "深色模式",
+    "system": "跟随系统"
+  },
+  "seo": {
+    "description": "动画时日 AniDaze 是动画播出时间追踪工具，提供当前季节动画和长期播放作品的详细播出时间表。支持下载 iCal 日历文件，直接导入你的行事历，随时掌握最新动画信息。",
+    "keywords": "anidaze,动画时日,新番,动画,动漫,动画列表,播出时间,动画时程,AniList,MyAnimeList,动画日历,动画追踪,新番动画,春季动画,夏季动画,秋季动画,冬季动画"
+  },
+  "search": {
+    "toggle": "搜索",
+    "title": "搜索",
+    "back": "返回",
+    "placeholder": "搜索动画...",
+    "submit": "搜索",
+    "results": "搜索「{query}」找到 {count} 个结果",
+    "clear": "清除搜索",
+    "category": {
+      "all": "全部",
+      "title": "标题",
+      "genre": "类型",
+      "studio": "制作公司"
+    }
+  },
+  "footer": {
+    "copyright": "© {year} AniDaze. 版权所有。",
+    "creator": "荷马桑 homer shie",
+    "github": "GitHub",
+    "instagram": "Instagram",
+    "translationNotice": "中文翻译说明",
+    "translationDetails": "因缺乏开放资源，简体中文标题使用 Wikipedia 自动搜索，动画简介使用 DeepL 机器翻译。若找不到当季作品或内容有误，可能为翻译错误，敬请见谅。"
+  }
+}

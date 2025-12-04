@@ -247,13 +247,13 @@ export async function getTMDBTranslations(
  * Find localized title from TMDB based on locale
  * @param nativeTitle - Japanese title
  * @param englishTitle - English title
- * @param locale - Target locale ('zh-TW', 'ja', 'en')
+ * @param locale - Target locale ('zh-TW', 'zh-CN', 'ja', 'en')
  * @returns Localized title if found, null otherwise
  */
 export async function findLocalizedTitleFromTMDB(
   nativeTitle: string | null,
   englishTitle: string | null,
-  locale: "zh-TW" | "ja" | "en" = "zh-TW"
+  locale: "zh-TW" | "zh-CN" | "ja" | "en" = "zh-TW"
 ): Promise<string | null> {
   // Check if either auth method is configured
   if (!process.env.TMDB_ACCESS_TOKEN && !process.env.TMDB_API_KEY) {
@@ -276,7 +276,7 @@ export async function findLocalizedTitleFromTMDB(
 
     // Search TMDB with locale-specific language code
     const tmdbLanguage =
-      locale === "zh-TW" ? "zh-TW" : locale === "ja" ? "ja-JP" : "en-US";
+      locale === "zh-TW" ? "zh-TW" : locale === "zh-CN" ? "zh-CN" : locale === "ja" ? "ja-JP" : "en-US";
     const searchResults = await searchTMDB(searchTitle, tmdbLanguage);
 
     // If no results, return null
@@ -313,6 +313,10 @@ export async function findLocalizedTitleFromTMDB(
 
           const hkTitle = titles.find((title) => title.iso_3166_1 === "HK");
           if (hkTitle) return hkTitle.title;
+        } else if (locale === "zh-CN") {
+          // Look for Simplified Chinese titles with priority: CN
+          const cnTitle = titles.find((title) => title.iso_3166_1 === "CN");
+          if (cnTitle) return cnTitle.title;
         } else if (locale === "ja") {
           // Look for Japanese titles
           const jpTitle = titles.find((title) => title.iso_3166_1 === "JP");
@@ -356,6 +360,17 @@ export async function findLocalizedTitleFromTMDB(
         }
         if (hkTranslation && hkTranslation.data.title) {
           return hkTranslation.data.title;
+        }
+      } else if (locale === "zh-CN") {
+        // Look for Simplified Chinese titles with priority: CN
+        const cnTranslation = translations.translations.find(
+          (t) => t.iso_3166_1 === "CN" && t.iso_639_1 === "zh"
+        );
+        if (cnTranslation && cnTranslation.data.name) {
+          return cnTranslation.data.name;
+        }
+        if (cnTranslation && cnTranslation.data.title) {
+          return cnTranslation.data.title;
         }
       } else if (locale === "ja") {
         // Look for Japanese translations
