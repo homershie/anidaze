@@ -1,4 +1,5 @@
 import * as deepl from "deepl-node";
+import OpenCC from "opencc-js";
 import {
   getCachedTranslation,
   setCachedTranslation,
@@ -8,19 +9,27 @@ import {
 } from "./translation-cache";
 
 /**
- * DeepL Translation Service
+ * DeepL Translation Service with OpenCC Converter
  *
  * Features:
  * - Automatic caching to reduce API calls
  * - Monthly character limit tracking (500,000 chars/month)
  * - Graceful degradation when limit exceeded
  * - Error handling with fallback to original text
+ * - Simplified to Traditional Chinese (Taiwan) conversion using OpenCC
+ *
+ * Translation Process:
+ * 1. Japanese → Simplified Chinese (via DeepL API)
+ * 2. Simplified Chinese → Traditional Chinese Taiwan (via OpenCC)
  */
 
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 
 // Initialize DeepL translator (lazy initialization)
 let translator: deepl.Translator | null = null;
+
+// Initialize OpenCC converter (Simplified Chinese to Traditional Chinese - Taiwan standard)
+const converter = OpenCC.Converter({ from: "cn", to: "tw" });
 
 function getTranslator(): deepl.Translator | null {
   if (!DEEPL_API_KEY) {
@@ -84,11 +93,14 @@ export async function translateJaToZhTW(text: string): Promise<string> {
       return text;
     }
 
-    // Step 5: Translate using DeepL API
-    console.log(`Translating ${textLength} characters from Japanese to Chinese...`);
+    // Step 5: Translate using DeepL API (to Simplified Chinese)
+    console.log(`Translating ${textLength} characters from Japanese to Simplified Chinese...`);
     const result = await translatorInstance.translateText(text, sourceLang, "zh");
 
-    const translatedText = result.text;
+    // Step 5.5: Convert Simplified Chinese to Traditional Chinese (Taiwan)
+    const simplifiedText = result.text;
+    const translatedText = converter(simplifiedText);
+    console.log("Converted Simplified Chinese to Traditional Chinese (Taiwan)");
 
     // Step 6: Update usage counter
     await incrementUsage(textLength);

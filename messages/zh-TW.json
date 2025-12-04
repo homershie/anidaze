@@ -184,6 +184,8 @@
     "copyright": "© {year} AniDaze. 版權所有。",
     "creator": "荷馬桑 homer shie",
     "github": "GitHub",
-    "instagram": "Instagram"
+    "instagram": "Instagram",
+    "translationNotice": "中文翻譯說明",
+    "translationDetails": "因欠缺開放資源，繁體中文標題使用 Wikipedia 自動搜尋，動畫簡介使用 DeepL 機器翻譯並透過 OpenCC 轉換為繁體。若找不到當季作品或內容有誤，可能為翻譯錯誤，敬請見諒。"
   }
 }

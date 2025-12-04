@@ -1,15 +1,28 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Github, Instagram } from "lucide-react";
 
 export function Footer() {
   const t = useTranslations("footer");
+  const locale = useLocale();
 
   return (
     <footer className="mt-16 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center gap-4">
+          {/* Translation Notice (只在繁體中文顯示) */}
+          {locale === "zh-TW" && (
+            <div className="w-full max-w-2xl rounded-lg border border-brand-yellow-200 bg-brand-yellow-50 p-4 text-center dark:border-brand-yellow-900/50 dark:bg-brand-yellow-950/20">
+              <h3 className="text-sm font-semibold text-brand-yellow-500 dark:text-brand-yellow-400">
+                {t("translationNotice")}
+              </h3>
+              <p className="mt-2 text-xs text-brand-yellow-500 dark:text-brand-yellow-400">
+                {t("translationDetails")}
+              </p>
+            </div>
+          )}
+
           {/* Copyright */}
           <div className="text-center text-sm text-muted-foreground">
             <p>{t("copyright", { year: new Date().getFullYear() })}</p>
