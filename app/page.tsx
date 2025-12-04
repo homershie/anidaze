@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   anilist,
   SEASONAL_MEDIA_QUERY,
@@ -439,17 +440,26 @@ export default async function Home({
       )}
 
       <div className="mt-4">
-        {viewMode === "list" ? (
-          <ListView
-            media={timeFilteredItems}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-          />
-        ) : viewMode === "week" ? (
-          <WeekView media={timeFilteredItems} weekOffset={0} />
-        ) : (
-          <MonthView media={timeFilteredItems} monthOffset={0} />
-        )}
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-8">
+              <div className="text-muted-foreground">載入中...</div>
+            </div>
+          }
+        >
+          {viewMode === "list" ? (
+            <ListView
+              key={`list-${sortBy}-${sortOrder}`}
+              media={timeFilteredItems}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+            />
+          ) : viewMode === "week" ? (
+            <WeekView key="week" media={timeFilteredItems} weekOffset={0} />
+          ) : (
+            <MonthView key="month" media={timeFilteredItems} monthOffset={0} />
+          )}
+        </Suspense>
       </div>
     </main>
   );
@@ -596,7 +606,7 @@ async function WeekView({
   weekOffset: number;
 }) {
   const t = await getTranslations();
-  const { start, end } = getWeekRange(weekOffset);
+  const { start } = getWeekRange(weekOffset);
 
   // 按小時和星期分組作品
   // hourByDay[hour][dayOfWeek] = [...media]

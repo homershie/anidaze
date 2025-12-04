@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -34,9 +35,10 @@ export function CalendarMediaItem({
 }: CalendarMediaItemProps) {
   // 如果沒有提供顏色，根據類型自動獲取
   const itemColor = color || getGenreColor(mediaItem.genres);
+  const [open, setOpen] = useState(false);
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
           className={cn(
@@ -49,7 +51,7 @@ export function CalendarMediaItem({
           {mediaItem.displayTitle}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-80" onInteractOutside={() => setOpen(false)}>
         <div className="space-y-3">
           <div className="flex gap-3">
             {mediaItem.coverImage?.large && (
